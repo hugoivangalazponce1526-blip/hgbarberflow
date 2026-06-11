@@ -253,7 +253,7 @@ export default function Home() {
                 <div className="text-xs text-text-secondary">Citas Agendadas</div>
               </div>
               <div>
-                <div className="font-sora text-2xl font-bold text-gold">3-5 min</div>
+                <div className="font-sora text-2xl font-bold text-gold">&lt;10 seg</div>
                 <div className="text-xs text-text-secondary">Tiempo de Reserva</div>
               </div>
             </div>
