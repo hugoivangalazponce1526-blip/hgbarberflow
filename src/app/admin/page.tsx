@@ -22,7 +22,8 @@ import {
   UserCheck,
   Trash2,
   TrendingUp,
-  DollarSign
+  DollarSign,
+  Users
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
@@ -38,6 +39,8 @@ interface Barbershop {
   address: string | null;
   owner_id: string | null;
   plan: 'basic' | 'premium';
+  plan_type: 'individual' | 'equipo';
+  max_barberos: number;
   is_active: boolean;
   created_at: string;
   profiles?: Profile[];
@@ -73,6 +76,8 @@ export default function AdminPage() {
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [shopPlan, setShopPlan] = useState<'basic' | 'premium'>('basic');
+  const [shopPlanType, setShopPlanType] = useState<'individual' | 'equipo'>('individual');
+  const [shopMaxBarberos, setShopMaxBarberos] = useState(4);
 
   // Verify Session and Role
   useEffect(() => {
@@ -158,7 +163,9 @@ export default function AdminPage() {
           email: ownerEmail,
           password: ownerPassword,
           owner_name: ownerName,
-          plan: shopPlan
+          plan: shopPlan,
+          plan_type: shopPlanType,
+          max_barberos: shopPlanType === 'equipo' ? shopMaxBarberos : 1,
         })
       });
 
@@ -175,6 +182,8 @@ export default function AdminPage() {
       setOwnerEmail('');
       setOwnerPassword('');
       setShopPlan('basic');
+      setShopPlanType('individual');
+      setShopMaxBarberos(4);
       
       alert('¡Barbería y barbero creados con éxito!');
       loadShops();
@@ -235,8 +244,9 @@ export default function AdminPage() {
   // Calculate Metrics
   const totalShops = shops.length;
   const activeShops = shops.filter(s => s.is_active).length;
-  const basicPlanShops = shops.filter(s => s.plan === 'basic').length;
+  const basicPlanShops = shops.filter(s => s.plan === 'basic' && s.plan_type === 'individual').length;
   const premiumPlanShops = shops.filter(s => s.plan === 'premium').length;
+  const equipoPlanShops = shops.filter(s => s.plan_type === 'equipo').length;
 
   return (
     <div className="min-h-screen bg-background text-text-primary selection:bg-gold selection:text-background font-inter pb-16 overflow-x-hidden">
@@ -255,7 +265,7 @@ export default function AdminPage() {
             </div>
             <div>
               <span className="font-sora text-base font-bold tracking-tight">
-                Corta<span className="text-gold">Gold</span> Admin
+                Barber<span className="text-gold">Flow</span> Admin
               </span>
               <p className="text-[9px] text-text-secondary font-bold uppercase tracking-widest">
                 Consola de Super Administración
@@ -325,9 +335,9 @@ export default function AdminPage() {
           </div>
 
           <div className="glass border border-white/5 p-5 rounded-2xl flex flex-col gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider">Plan Básico</span>
+            <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider">Individual</span>
             <div className="flex items-center justify-between mt-1">
-              <span className="font-sora text-3xl font-bold">{basicPlanShops}</span>
+              <span className="font-sora text-3xl font-bold">{basicPlanShops + premiumPlanShops}</span>
               <div className="p-2.5 rounded-lg bg-surface-dark border border-white/5">
                 <Layers className="w-4 h-4 text-text-secondary" />
               </div>
@@ -335,11 +345,11 @@ export default function AdminPage() {
           </div>
 
           <div className="glass border border-white/5 p-5 rounded-2xl flex flex-col gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider">Plan Premium</span>
+            <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider">Full Equipo</span>
             <div className="flex items-center justify-between mt-1">
-              <span className="font-sora text-3xl font-bold text-gold">{premiumPlanShops}</span>
+              <span className="font-sora text-3xl font-bold text-gold">{equipoPlanShops}</span>
               <div className="p-2.5 rounded-lg bg-gold/10 border border-gold/20">
-                <Layers className="w-4 h-4 text-gold" />
+                <Users className="w-4 h-4 text-gold" />
               </div>
             </div>
           </div>
@@ -348,13 +358,15 @@ export default function AdminPage() {
 
         {/* Revenue Chart */}
         {(() => {
-          const basicCount  = shops.filter(s => s.plan === 'basic').length;
+          const basicCount   = shops.filter(s => s.plan === 'basic' && s.plan_type === 'individual').length;
           const premiumCount = shops.filter(s => s.plan === 'premium').length;
-          const mrr = basicCount * 12 + premiumCount * 10;
+          const equipoCount  = equipoPlanShops;
+          const mrr = basicCount * 12 + premiumCount * 10 + equipoCount * 40;
           const arr = mrr * 12;
           const chartData = [
-            { plan: 'Mensual ($12)', mrr: basicCount * 12, shops: basicCount, fill: '#C9A84C' },
-            { plan: 'Anual ($10/mo)', mrr: premiumCount * 10, shops: premiumCount, fill: '#4CAF50' },
+            { plan: 'Mensual', mrr: basicCount * 12, fill: '#C9A84C' },
+            { plan: 'Anual', mrr: premiumCount * 10, fill: '#4CAF50' },
+            { plan: 'Equipo', mrr: equipoCount * 40, fill: '#8B5CF6' },
           ];
           return (
             <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -469,13 +481,20 @@ export default function AdminPage() {
                           )}
                         </td>
                         <td className="p-5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
-                            shop.plan === 'premium' 
-                              ? 'bg-gold/10 text-gold border border-gold/20' 
-                              : 'bg-surface-light text-text-secondary border border-white/5'
-                          }`}>
-                            {shop.plan}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider w-fit ${
+                              shop.plan === 'premium'
+                                ? 'bg-gold/10 text-gold border border-gold/20'
+                                : 'bg-surface-light text-text-secondary border border-white/5'
+                            }`}>
+                              {shop.plan === 'premium' ? 'Anual' : 'Mensual'}
+                            </span>
+                            {shop.plan_type === 'equipo' && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider w-fit bg-gold/5 text-gold/70 border border-gold/10">
+                                Equipo ×{shop.max_barberos}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="p-5">
                           <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
@@ -619,10 +638,49 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Plan Selector */}
+                {/* Plan Type Selector */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-text-secondary font-semibold pl-1">Tipo de Plan</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['individual', 'equipo'] as const).map((pt) => (
+                      <button
+                        key={pt}
+                        type="button"
+                        onClick={() => setShopPlanType(pt)}
+                        className={`py-2.5 rounded-xl border text-sm font-semibold capitalize transition-all ${
+                          shopPlanType === pt
+                            ? 'bg-gold/10 border-gold text-gold'
+                            : 'bg-surface-dark border-white/5 text-text-secondary hover:border-white/20'
+                        }`}
+                      >
+                        {pt === 'individual' ? 'Individual' : 'Full Equipo'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Max barberos (equipo only) */}
+                {shopPlanType === 'equipo' && (
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="modalMaxBarberos" className="text-xs text-text-secondary font-semibold pl-1">
+                      Número máximo de barberos
+                    </label>
+                    <input
+                      type="number"
+                      id="modalMaxBarberos"
+                      min={2}
+                      max={20}
+                      value={shopMaxBarberos}
+                      onChange={(e) => setShopMaxBarberos(Number(e.target.value))}
+                      className="w-full bg-surface-dark border border-white/5 text-text-primary text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-gold transition-colors font-medium"
+                    />
+                  </div>
+                )}
+
+                {/* Billing Plan Selector */}
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="modalShopPlan" className="text-xs text-text-secondary font-semibold pl-1">
-                    Plan Contratado
+                    Facturación
                   </label>
                   <select
                     id="modalShopPlan"
@@ -630,8 +688,8 @@ export default function AdminPage() {
                     onChange={(e: any) => setShopPlan(e.target.value)}
                     className="w-full bg-surface-dark border border-white/5 text-text-primary text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-gold transition-colors font-semibold"
                   >
-                    <option value="basic">Plan Individual · Mensual ($12/mes)</option>
-                    <option value="premium">Plan Individual · Anual ($120/año)</option>
+                    <option value="basic">Mensual ($12/mes)</option>
+                    <option value="premium">Anual ($120/año)</option>
                   </select>
                 </div>
 

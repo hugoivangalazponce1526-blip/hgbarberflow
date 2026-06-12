@@ -37,13 +37,19 @@ export async function POST(req: Request) {
     const email: string = typeof raw.email === 'string' ? raw.email.trim().slice(0, 254) : '';
     const password: string = typeof raw.password === 'string' ? raw.password : '';
     const plan: string = typeof raw.plan === 'string' ? raw.plan : '';
+    const plan_type: string = typeof raw.plan_type === 'string' ? raw.plan_type : 'individual';
+    const max_barberos: number = typeof raw.max_barberos === 'number' ? Math.max(1, Math.min(raw.max_barberos, 50)) : 1;
 
-    const VALID_PLANS = ['monthly', 'annual'];
+    const VALID_PLANS = ['basic', 'premium'];
+    const VALID_PLAN_TYPES = ['individual', 'equipo'];
     if (!name || !email || !password || !owner_name || !plan) {
       return NextResponse.json({ error: 'Faltan campos obligatorios en el formulario.' }, { status: 400 });
     }
     if (!VALID_PLANS.includes(plan)) {
       return NextResponse.json({ error: 'Plan no válido.' }, { status: 400 });
+    }
+    if (!VALID_PLAN_TYPES.includes(plan_type)) {
+      return NextResponse.json({ error: 'Tipo de plan no válido.' }, { status: 400 });
     }
 
     // 3. Generate shop slug
@@ -70,6 +76,8 @@ export async function POST(req: Request) {
         name,
         slug: finalSlug,
         plan,
+        plan_type,
+        max_barberos,
         is_active: true
       })
       .select()
