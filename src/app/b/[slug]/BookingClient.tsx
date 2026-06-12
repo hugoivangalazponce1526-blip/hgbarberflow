@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   Loader2,
 } from 'lucide-react';
-import type { ShopData, Service, Schedule } from './page';
+import type { ShopData, Service, Schedule, Barber } from './page';
 
 interface Props {
   shopData: ShopData;
@@ -27,6 +27,7 @@ export default function BookingClient({ shopData, slug }: Props) {
   const supabase = createClient();
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [clientName, setClientName] = useState('');
@@ -35,6 +36,9 @@ export default function BookingClient({ shopData, slug }: Props) {
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+
+  const isEquipoWithBarbers =
+    shopData.barbershop.plan_type === 'equipo' && shopData.barbers.length > 1;
 
   // Fetch taken slots when date & service are selected
   useEffect(() => {
@@ -45,6 +49,7 @@ export default function BookingClient({ shopData, slug }: Props) {
 
     const currentDate = selectedDate;
     const currentService = selectedService;
+    const currentBarber = selectedBarber;
 
     async function fetchTakenSlotsAndGenerate() {
       try {
@@ -54,6 +59,7 @@ export default function BookingClient({ shopData, slug }: Props) {
         const { data, error: rpcError } = await supabase.rpc('public_get_taken_slots', {
           shop_slug: slug,
           the_date: dateStr,
+          p_barber_id: currentBarber?.id ?? null,
         });
 
         if (rpcError) throw rpcError;
@@ -115,7 +121,7 @@ export default function BookingClient({ shopData, slug }: Props) {
     }
 
     fetchTakenSlotsAndGenerate();
-  }, [selectedDate, selectedService, shopData.schedules, slug, supabase]);
+  }, [selectedDate, selectedService, selectedBarber, shopData.schedules, slug, supabase]);
 
   const formatDateToYYYYMMDD = (d: Date) => {
     const year = d.getFullYear();
@@ -199,6 +205,7 @@ export default function BookingClient({ shopData, slug }: Props) {
         client_phone: clientPhone,
         date: dateStr,
         start_time: startTimeFormatted,
+        p_barber_id: selectedBarber?.id ?? null,
       });
 
       if (rpcError) throw rpcError;
@@ -283,6 +290,7 @@ export default function BookingClient({ shopData, slug }: Props) {
               onClick={() => {
                 setBookingSuccess(null);
                 setSelectedService(null);
+                setSelectedBarber(null);
                 setSelectedDate(null);
                 setSelectedTimeSlot(null);
                 setClientName('');
@@ -415,6 +423,7 @@ export default function BookingClient({ shopData, slug }: Props) {
                       key={service.id}
                       onClick={() => {
                         setSelectedService(service);
+                        setSelectedBarber(null);
                         setSelectedDate(null);
                         setSelectedTimeSlot(null);
                       }}
@@ -445,12 +454,53 @@ export default function BookingClient({ shopData, slug }: Props) {
             )}
           </div>
 
-          {/* Step 2: Date */}
-          {selectedService && (
+          {/* Step 2: Barber (equipo plan only) */}
+          {selectedService && isEquipoWithBarbers && (
             <div className="glass border border-white/5 rounded-3xl p-6 shadow-xl animate-fade-in">
               <h2 className="font-sora text-lg font-bold mb-4 flex items-center gap-2.5">
                 <span className="w-6 h-6 rounded-lg bg-surface-light border border-white/10 text-xs font-bold flex items-center justify-center">
                   2
+                </span>
+                Elige tu Barbero
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {shopData.barbers.map((barber) => {
+                  const isSelected = selectedBarber?.id === barber.id;
+                  return (
+                    <button
+                      key={barber.id}
+                      onClick={() => {
+                        setSelectedBarber(barber);
+                        setSelectedDate(null);
+                        setSelectedTimeSlot(null);
+                      }}
+                      className={`text-left p-4 rounded-2xl border transition-all flex items-center gap-3 ${
+                        isSelected
+                          ? 'bg-surface-light border-gold shadow-lg shadow-gold/5'
+                          : 'bg-surface-dark/60 border-white/5 hover:border-white/10 hover:bg-surface-light/30'
+                      }`}
+                      style={{ borderColor: isSelected ? activeColor : undefined }}
+                    >
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                        style={{ backgroundColor: `${activeColor}20`, color: activeColor, border: `1px solid ${activeColor}40` }}
+                      >
+                        {barber.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="font-sora font-semibold text-sm">{barber.full_name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3 (or 2): Date */}
+          {selectedService && (!isEquipoWithBarbers || selectedBarber) && (
+            <div className="glass border border-white/5 rounded-3xl p-6 shadow-xl animate-fade-in">
+              <h2 className="font-sora text-lg font-bold mb-4 flex items-center gap-2.5">
+                <span className="w-6 h-6 rounded-lg bg-surface-light border border-white/10 text-xs font-bold flex items-center justify-center">
+                  {isEquipoWithBarbers ? 3 : 2}
                 </span>
                 Selecciona Fecha
               </h2>
@@ -499,12 +549,12 @@ export default function BookingClient({ shopData, slug }: Props) {
             </div>
           )}
 
-          {/* Step 3: Slots */}
-          {selectedService && selectedDate && (
+          {/* Step 4 (or 3): Slots */}
+          {selectedService && selectedDate && (!isEquipoWithBarbers || selectedBarber) && (
             <div className="glass border border-white/5 rounded-3xl p-6 shadow-xl animate-fade-in">
               <h2 className="font-sora text-lg font-bold mb-4 flex items-center gap-2.5">
                 <span className="w-6 h-6 rounded-lg bg-surface-light border border-white/10 text-xs font-bold flex items-center justify-center">
-                  3
+                  {isEquipoWithBarbers ? 4 : 3}
                 </span>
                 Selecciona Hora
               </h2>
@@ -572,6 +622,12 @@ export default function BookingClient({ shopData, slug }: Props) {
                 <p className="text-xs text-text-secondary leading-relaxed font-inter">
                   Selecciona un servicio para comenzar a agendar tu turno.
                 </p>
+              )}
+              {selectedBarber && (
+                <div className="border-t border-white/5 pt-3.5 flex flex-col gap-1.5 text-xs">
+                  <span className="text-text-secondary font-medium">Barbero:</span>
+                  <span className="font-semibold text-text-primary">{selectedBarber.full_name}</span>
+                </div>
               )}
               {selectedDate && (
                 <div className="border-t border-white/5 pt-3.5 flex flex-col gap-1.5 text-xs">

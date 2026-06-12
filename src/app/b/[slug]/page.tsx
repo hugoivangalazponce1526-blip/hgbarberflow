@@ -15,6 +15,12 @@ export interface Barbershop {
   phone: string | null;
   address: string | null;
   is_active: boolean;
+  plan_type: 'individual' | 'equipo';
+}
+
+export interface Barber {
+  id: string;
+  full_name: string;
 }
 
 export interface Service {
@@ -47,6 +53,7 @@ export interface ShopData {
   services: Service[];
   schedules: Schedule[];
   blocked_dates: BlockedDate[];
+  barbers: Barber[];
 }
 
 const getShopData = cache(async (slug: string): Promise<ShopData | null> => {
@@ -71,6 +78,7 @@ const getShopData = cache(async (slug: string): Promise<ShopData | null> => {
     services: parsed.services || parsed.active_services || [],
     schedules: parsed.schedules || parsed.active_schedules || [],
     blocked_dates: parsed.blocked_dates || parsed.blocked_dates_future || [],
+    barbers: parsed.barbers || [],
   };
 });
 
