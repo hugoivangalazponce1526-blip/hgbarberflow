@@ -678,20 +678,29 @@ export default function AdminPage() {
                 )}
 
                 {/* Billing Plan Selector */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="modalShopPlan" className="text-xs text-text-secondary font-semibold pl-1">
-                    Facturación
-                  </label>
-                  <select
-                    id="modalShopPlan"
-                    value={shopPlan}
-                    onChange={(e: any) => setShopPlan(e.target.value)}
-                    className="w-full bg-surface-dark border border-white/5 text-text-primary text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-gold transition-colors font-semibold"
-                  >
-                    <option value="basic">Mensual ($12/mes)</option>
-                    <option value="premium">Anual ($120/año)</option>
-                  </select>
-                </div>
+                {shopPlanType === 'equipo' ? (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs text-text-secondary font-semibold pl-1">Facturación</label>
+                    <div className="w-full bg-surface-dark border border-gold/20 text-gold text-sm rounded-xl px-4 py-3 font-semibold">
+                      Full Equipo — $40.000 CLP/mes
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="modalShopPlan" className="text-xs text-text-secondary font-semibold pl-1">
+                      Facturación
+                    </label>
+                    <select
+                      id="modalShopPlan"
+                      value={shopPlan}
+                      onChange={(e: any) => setShopPlan(e.target.value)}
+                      className="w-full bg-surface-dark border border-white/5 text-text-primary text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-gold transition-colors font-semibold"
+                    >
+                      <option value="basic">Mensual ($12/mes)</option>
+                      <option value="premium">Anual ($120/año)</option>
+                    </select>
+                  </div>
+                )}
 
                 {/* Submit */}
                 <button
