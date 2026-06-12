@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   Scissors,
@@ -299,15 +298,12 @@ export default function Home() {
           <div className="md:col-span-5 relative flex justify-center items-center">
             <div className="absolute w-[80%] h-[80%] rounded-full bg-gold/10 blur-[60px] -z-10" />
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/80 border border-white/5 glass p-2 max-w-[450px] md:max-w-full">
-              <Image
-                src="/images/dashboard-mockup.png"
-                alt="Panel Administrativo BarberFlow"
-                width={600}
-                height={600}
-                className="rounded-xl object-cover"
-                priority
-                sizes="(max-width: 768px) 90vw, 45vw"
-              />
+              <div className="rounded-xl bg-surface-dark border border-white/5 aspect-[4/3] flex flex-col items-center justify-center gap-4 px-8 text-center" style={{ minHeight: 320 }}>
+                <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <p className="text-text-secondary text-sm font-inter">Vista del panel<br/><span className="text-gold font-semibold">próximamente</span></p>
+              </div>
             </div>
           </div>
         </div>
