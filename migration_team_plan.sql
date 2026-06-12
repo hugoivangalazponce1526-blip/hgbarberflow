@@ -37,6 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_appointments_barber_id ON public.appointments(bar
 -- ============================================================
 -- 4. Update public_get_shop RPC to return barbers + plan_type
 -- ============================================================
+DROP FUNCTION IF EXISTS public.public_get_shop(TEXT);
 CREATE OR REPLACE FUNCTION public.public_get_shop(shop_slug TEXT)
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -102,6 +103,8 @@ $$;
 -- ============================================================
 -- 5. Update public_get_taken_slots to accept optional barber_id
 -- ============================================================
+DROP FUNCTION IF EXISTS public.public_get_taken_slots(TEXT, DATE);
+DROP FUNCTION IF EXISTS public.public_get_taken_slots(TEXT, DATE, UUID);
 CREATE OR REPLACE FUNCTION public.public_get_taken_slots(
   shop_slug   TEXT,
   the_date    DATE,
@@ -141,6 +144,8 @@ $$;
 -- ============================================================
 -- 6. Update public_create_appointment to accept optional barber_id
 -- ============================================================
+DROP FUNCTION IF EXISTS public.public_create_appointment(TEXT, UUID, TEXT, TEXT, DATE, TIME);
+DROP FUNCTION IF EXISTS public.public_create_appointment(TEXT, UUID, TEXT, TEXT, DATE, TIME, UUID);
 CREATE OR REPLACE FUNCTION public.public_create_appointment(
   shop_slug    TEXT,
   service_id   UUID,
@@ -181,12 +186,12 @@ BEGIN
 
   -- Check slot is not already taken
   IF EXISTS (
-    SELECT 1 FROM public.appointments
-    WHERE barbershop_id = v_shop.id
-      AND appointment_date = date
-      AND start_time = public_create_appointment.start_time
-      AND status != 'cancelada'
-      AND (p_barber_id IS NULL OR barber_id = p_barber_id)
+    SELECT 1 FROM public.appointments a
+    WHERE a.barbershop_id = v_shop.id
+      AND a.appointment_date = date
+      AND a.start_time = public_create_appointment.start_time
+      AND a.status != 'cancelada'
+      AND (p_barber_id IS NULL OR a.barber_id = p_barber_id)
   ) THEN
     RETURN jsonb_build_object('error', 'Este horario ya fue reservado. Por favor elige otro.');
   END IF;

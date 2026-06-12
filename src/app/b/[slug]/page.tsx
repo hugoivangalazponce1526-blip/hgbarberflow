@@ -29,6 +29,7 @@ export interface Service {
   duration_min: number;
   price: number;
   is_active: boolean;
+  barber_id: string | null;
 }
 
 export interface Schedule {
@@ -37,6 +38,7 @@ export interface Schedule {
   start_time: string;
   end_time: string;
   is_active: boolean;
+  barber_id: string | null;
   break_start?: string | null;
   break_end?: string | null;
   custom_slots?: string[] | null;

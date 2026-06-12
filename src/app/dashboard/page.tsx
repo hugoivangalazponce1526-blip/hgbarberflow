@@ -77,6 +77,7 @@ interface Schedule {
   start_time: string;
   end_time: string;
   is_active: boolean;
+  barber_id: string | null;
   break_start: string | null;
   break_end: string | null;
   custom_slots: string[] | null;
@@ -272,21 +273,36 @@ export default function DashboardPage() {
         setAppointments(data || []);
 
       } else if (activeTab === 'services') {
-        const { data, error } = await supabase
+        let servQuery = supabase
           .from('services')
           .select('*')
           .eq('barbershop_id', barbershop!.id)
           .order('name', { ascending: true });
 
+        // Equipo: each barber sees only their own services
+        if (barbershop!.plan_type === 'equipo') {
+          servQuery = servQuery.eq('barber_id', profile!.id);
+        }
+
+        const { data, error } = await servQuery;
         if (error) throw error;
         setServices(data || []);
 
       } else if (activeTab === 'schedule') {
-        const { data: scheduleData, error: scheduleErr } = await supabase
+        let schedQuery = supabase
           .from('schedules')
           .select('*')
           .eq('barbershop_id', barbershop!.id)
           .order('weekday', { ascending: true });
+
+        // Equipo: each barber sees only their own schedules
+        if (barbershop!.plan_type === 'equipo') {
+          schedQuery = schedQuery.eq('barber_id', profile!.id);
+        } else {
+          schedQuery = schedQuery.is('barber_id', null);
+        }
+
+        const { data: scheduleData, error: scheduleErr } = await schedQuery;
 
         if (scheduleErr) throw scheduleErr;
         setSchedules(scheduleData || []);
@@ -375,8 +391,6 @@ export default function DashboardPage() {
         if (error) throw error;
       } else {
         // Create
-        // RLS auto-populates or authorizes based on shop, but we must make sure if table requires it we insert it
-        // Since we are barber we belongs to barbershop_id
         const { error } = await supabase
           .from('services')
           .insert({
@@ -384,7 +398,9 @@ export default function DashboardPage() {
             name: serviceName,
             duration_min: serviceDuration,
             price: servicePrice,
-            is_active: serviceIsActive
+            is_active: serviceIsActive,
+            // Equipo: tag service to this barber
+            ...(barbershop!.plan_type === 'equipo' && { barber_id: profile!.id }),
           });
 
         if (error) throw error;
@@ -485,6 +501,7 @@ export default function DashboardPage() {
       // In case day has no schedule record, insert a new one
       const newSchedule = {
         barbershop_id: profile!.barbershop_id,
+        ...(barbershop!.plan_type === 'equipo' && { barber_id: profile!.id }),
         weekday,
         start_time: field === 'start_time' ? value : '09:00:00',
         end_time: field === 'end_time' ? value : '18:00:00',
@@ -537,6 +554,7 @@ export default function DashboardPage() {
           .from('schedules')
           .insert({
             barbershop_id: profile!.barbershop_id,
+            ...(barbershop!.plan_type === 'equipo' && { barber_id: profile!.id }),
             weekday,
             start_time: '00:00:00',
             end_time: '23:59:00',
@@ -581,6 +599,7 @@ export default function DashboardPage() {
           .from('schedules')
           .insert({
             barbershop_id: profile!.barbershop_id,
+            ...(barbershop!.plan_type === 'equipo' && { barber_id: profile!.id }),
             weekday,
             start_time: '00:00:00',
             end_time: '23:59:00',
