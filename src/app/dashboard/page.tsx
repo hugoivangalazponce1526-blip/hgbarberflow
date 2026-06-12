@@ -750,7 +750,7 @@ export default function DashboardPage() {
       const res = await fetch('/api/dashboard/remove-team-barber', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ barberId }),
+        body: JSON.stringify({ barber_id: barberId }),
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Error al eliminar barbero');
