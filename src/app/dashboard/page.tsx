@@ -26,7 +26,10 @@ import {
   CheckCircle,
   XCircle,
   CalendarDays,
-  TrendingUp
+  TrendingUp,
+  Users,
+  UserPlus,
+  UserMinus
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -42,7 +45,15 @@ interface Barbershop {
   phone: string | null;
   address: string | null;
   plan: string;
+  plan_type: 'individual' | 'equipo';
+  max_barberos: number;
   is_active: boolean;
+}
+
+interface TeamBarber {
+  id: string;
+  full_name: string;
+  role: string;
 }
 
 interface Profile {
@@ -114,7 +125,16 @@ export default function DashboardPage() {
   const [barbershop, setBarbershop] = useState<Barbershop | null>(null);
 
   // Active Tab: 'appointments' | 'services' | 'schedule' | 'profile'
-  const [activeTab, setActiveTab] = useState<'appointments' | 'stats' | 'services' | 'schedule' | 'profile'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'stats' | 'services' | 'schedule' | 'profile' | 'equipo'>('appointments');
+
+  // Team barbers (equipo plan only)
+  const [teamBarbers, setTeamBarbers] = useState<TeamBarber[]>([]);
+  const [showAddBarberForm, setShowAddBarberForm] = useState(false);
+  const [newBarberName, setNewBarberName] = useState('');
+  const [newBarberEmail, setNewBarberEmail] = useState('');
+  const [newBarberPassword, setNewBarberPassword] = useState('');
+  const [addBarberLoading, setAddBarberLoading] = useState(false);
+  const [addBarberError, setAddBarberError] = useState<string | null>(null);
 
   // Data States
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -271,6 +291,16 @@ export default function DashboardPage() {
 
         if (blockedErr) throw blockedErr;
         setBlockedDates(blockedData || []);
+
+      } else if (activeTab === 'equipo') {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('barbershop_id', barbershop!.id)
+          .eq('role', 'barber')
+          .order('full_name', { ascending: true });
+        if (error) throw error;
+        setTeamBarbers(data || []);
       }
     } catch (err: any) {
       console.error('Error loading tab data:', err);
@@ -661,6 +691,49 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAddBarber = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!barbershop) return;
+    if (teamBarbers.length >= barbershop.max_barberos) {
+      setAddBarberError(`Límite alcanzado: tu plan permite hasta ${barbershop.max_barberos} barberos.`);
+      return;
+    }
+    setAddBarberLoading(true);
+    setAddBarberError(null);
+    try {
+      const res = await fetch('/api/dashboard/add-team-barber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: newBarberName, email: newBarberEmail, password: newBarberPassword }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Error al agregar barbero');
+      setNewBarberName(''); setNewBarberEmail(''); setNewBarberPassword('');
+      setShowAddBarberForm(false);
+      loadTabData();
+    } catch (err: any) {
+      setAddBarberError(err.message);
+    } finally {
+      setAddBarberLoading(false);
+    }
+  };
+
+  const handleRemoveBarber = async (barberId: string, barberName: string) => {
+    if (!window.confirm(`¿Eliminar a "${barberName}" del equipo? Se eliminará su cuenta permanentemente.`)) return;
+    try {
+      const res = await fetch('/api/dashboard/remove-team-barber', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ barberId }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Error al eliminar barbero');
+      loadTabData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background text-text-primary flex flex-col items-center justify-center gap-4 font-inter">
@@ -755,8 +828,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
-                activeTab === 'profile' 
-                  ? 'bg-surface-light text-text-primary border-l-2' 
+                activeTab === 'profile'
+                  ? 'bg-surface-light text-text-primary border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'profile' ? activeColor : undefined }}
@@ -764,6 +837,21 @@ export default function DashboardPage() {
               <Settings className="w-4 h-4 flex-shrink-0" />
               Configurar Perfil
             </button>
+
+            {barbershop.plan_type === 'equipo' && (
+              <button
+                onClick={() => setActiveTab('equipo')}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
+                  activeTab === 'equipo'
+                    ? 'bg-surface-light text-text-primary border-l-2'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
+                }`}
+                style={{ borderLeftColor: activeTab === 'equipo' ? activeColor : undefined }}
+              >
+                <Users className="w-4 h-4 flex-shrink-0" />
+                Mi Equipo
+              </button>
+            )}
           </nav>
         </div>
 
@@ -803,6 +891,7 @@ export default function DashboardPage() {
               {activeTab === 'services'     && 'Catálogo de Servicios'}
               {activeTab === 'schedule'     && 'Horarios e Inactividad'}
               {activeTab === 'profile'      && 'Información de la Barbería'}
+              {activeTab === 'equipo'       && 'Mi Equipo'}
             </h1>
             <p className="text-xs md:text-sm text-text-secondary mt-1 font-medium">
               {activeTab === 'appointments' && 'Monitorea, confirma o cancela las reservas de tus clientes.'}
@@ -810,6 +899,7 @@ export default function DashboardPage() {
               {activeTab === 'services'     && 'Crea, edita o desactiva los servicios ofrecidos en tu local.'}
               {activeTab === 'schedule'     && 'Configura tu disponibilidad semanal y bloquea fechas específicas.'}
               {activeTab === 'profile'      && 'Actualiza tus redes de contacto, dirección y personaliza tu marca.'}
+              {activeTab === 'equipo'       && `Gestiona los barberos de tu equipo. Máximo ${barbershop.max_barberos} barberos en tu plan.`}
             </p>
           </div>
 
@@ -1406,6 +1496,132 @@ export default function DashboardPage() {
             )}
 
             {/* VIEW 4: My Profile */}
+            {activeTab === 'equipo' && (
+              <div className="max-w-2xl">
+                {/* Capacity bar */}
+                <div className="bg-surface-dark border border-white/5 rounded-2xl p-5 mb-6 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-gold" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-text-primary">
+                      {teamBarbers.length} / {barbershop.max_barberos} barberos activos
+                    </p>
+                    <div className="w-full h-1.5 bg-surface-light rounded-full mt-2">
+                      <div
+                        className="h-1.5 rounded-full bg-gold transition-all"
+                        style={{ width: `${Math.min(100, (teamBarbers.length / barbershop.max_barberos) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  {teamBarbers.length < barbershop.max_barberos && (
+                    <button
+                      onClick={() => setShowAddBarberForm(v => !v)}
+                      className="flex items-center gap-2 bg-gold/10 hover:bg-gold/20 border border-gold/30 text-gold text-xs font-semibold px-4 py-2 rounded-xl transition-all flex-shrink-0"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Agregar
+                    </button>
+                  )}
+                </div>
+
+                {/* Add barber form */}
+                {showAddBarberForm && (
+                  <form
+                    onSubmit={handleAddBarber}
+                    className="bg-surface-dark border border-gold/20 rounded-2xl p-6 mb-6 flex flex-col gap-4"
+                  >
+                    <h3 className="font-sora font-bold text-sm text-text-primary">Nuevo barbero</h3>
+                    {addBarberError && (
+                      <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">{addBarberError}</p>
+                    )}
+                    <div className="grid sm:grid-cols-3 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Nombre completo"
+                        value={newBarberName}
+                        onChange={e => setNewBarberName(e.target.value)}
+                        required
+                        className="bg-surface-light border border-white/10 focus:border-gold/40 rounded-xl px-4 py-3 text-sm text-text-primary outline-none transition-colors"
+                      />
+                      <input
+                        type="email"
+                        placeholder="Correo"
+                        value={newBarberEmail}
+                        onChange={e => setNewBarberEmail(e.target.value)}
+                        required
+                        className="bg-surface-light border border-white/10 focus:border-gold/40 rounded-xl px-4 py-3 text-sm text-text-primary outline-none transition-colors"
+                      />
+                      <input
+                        type="password"
+                        placeholder="Contraseña temporal"
+                        value={newBarberPassword}
+                        onChange={e => setNewBarberPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        className="bg-surface-light border border-white/10 focus:border-gold/40 rounded-xl px-4 py-3 text-sm text-text-primary outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        type="button"
+                        onClick={() => { setShowAddBarberForm(false); setAddBarberError(''); }}
+                        className="text-xs text-text-secondary hover:text-text-primary px-4 py-2 rounded-xl transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={addBarberLoading}
+                        className="flex items-center gap-2 bg-gold hover:bg-gold/80 text-black text-xs font-bold px-5 py-2.5 rounded-xl transition-all disabled:opacity-50"
+                      >
+                        {addBarberLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
+                        Crear barbero
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Barbers list */}
+                {teamBarbers.length === 0 ? (
+                  <div className="bg-surface-dark border border-white/5 rounded-2xl p-10 flex flex-col items-center gap-3 text-center">
+                    <Users className="w-10 h-10 text-text-secondary/30" />
+                    <p className="text-text-secondary text-sm">Aún no hay barberos en tu equipo.</p>
+                    <button
+                      onClick={() => setShowAddBarberForm(true)}
+                      className="text-gold text-xs hover:underline"
+                    >
+                      Agrega el primero →
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {teamBarbers.map(barber => (
+                      <div
+                        key={barber.id}
+                        className="bg-surface-dark border border-white/5 rounded-xl px-5 py-4 flex items-center gap-4"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-gold text-xs font-bold">{barber.full_name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-text-primary truncate">{barber.full_name}</p>
+                          <p className="text-xs text-text-secondary capitalize">{barber.role}</p>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveBarber(barber.id, barber.full_name)}
+                          className="p-2 rounded-xl text-text-secondary hover:text-red-400 hover:bg-red-400/10 transition-all"
+                          title="Eliminar barbero"
+                        >
+                          <UserMinus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'profile' && (
               <div className="grid md:grid-cols-12 gap-8 items-start animate-fade-in font-inter">
                 {/* Profile Form */}
