@@ -36,7 +36,7 @@ export default function PrivacidadPage() {
           <section>
             <h2 className="font-sora text-xl font-bold text-text-primary mb-3">1. Responsable del tratamiento</h2>
             <p>
-              HG GrowthLab, en adelante <strong className="text-text-primary">"BarberFlow"</strong>, es responsable del tratamiento de sus datos personales. Para consultas relacionadas con privacidad puede contactarnos en{' '}
+              HG GrowthLab, en adelante <strong className="text-text-primary">&ldquo;BarberFlow&rdquo;</strong>, es responsable del tratamiento de sus datos personales. Para consultas relacionadas con privacidad puede contactarnos en{' '}
               <a href="mailto:privacidad@hggrowthlab.cl" className="text-gold hover:underline">privacidad@hggrowthlab.cl</a>.
             </p>
           </section>
