@@ -776,10 +776,10 @@ export default function DashboardPage() {
   const activeColor = barbershop.brand_color || '#C9A84C';
 
   return (
-    <div className="min-h-screen bg-background text-text-primary flex flex-col md:flex-row font-inter overflow-x-hidden">
+    <div className="bg-background text-text-primary font-inter overflow-x-hidden md:flex md:flex-row md:h-screen">
       
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-surface-dark border-b md:border-b-0 md:border-r border-white/5 flex flex-col justify-between shrink-0 z-20">
+      <aside className="w-full md:w-64 bg-surface-dark border-b md:border-b-0 md:border-r border-white/5 md:flex md:flex-col md:justify-between md:shrink-0 md:overflow-y-auto z-20">
         <div>
           {/* Header Sidebar */}
           <div className="p-6 border-b border-white/5 flex items-center gap-3">
@@ -798,84 +798,84 @@ export default function DashboardPage() {
           </div>
 
           {/* Nav Links */}
-          <nav className="p-4 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-x-visible">
+          <nav className="px-3 py-2 md:p-4 flex flex-row md:flex-col gap-1 overflow-x-auto scrollbar-none">
             <button
               onClick={() => setActiveTab('appointments')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
-                activeTab === 'appointments' 
-                  ? 'bg-surface-light text-text-primary border-l-2' 
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === 'appointments'
+                  ? 'bg-surface-light text-text-primary md:border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'appointments' ? activeColor : undefined }}
             >
               <Calendar className="w-4 h-4 flex-shrink-0" />
-              Citas Recibidas
+              <span>Citas</span>
             </button>
 
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === 'stats'
-                  ? 'bg-surface-light text-text-primary border-l-2'
+                  ? 'bg-surface-light text-text-primary md:border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'stats' ? activeColor : undefined }}
             >
               <TrendingUp className="w-4 h-4 flex-shrink-0" />
-              Estadísticas
+              <span>Stats</span>
             </button>
 
             <button
               onClick={() => setActiveTab('services')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === 'services'
-                  ? 'bg-surface-light text-text-primary border-l-2'
+                  ? 'bg-surface-light text-text-primary md:border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'services' ? activeColor : undefined }}
             >
               <Scissors className="w-4 h-4 flex-shrink-0" />
-              Servicios
+              <span>Servicios</span>
             </button>
 
             <button
               onClick={() => setActiveTab('schedule')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
-                activeTab === 'schedule' 
-                  ? 'bg-surface-light text-text-primary border-l-2' 
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === 'schedule'
+                  ? 'bg-surface-light text-text-primary md:border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'schedule' ? activeColor : undefined }}
             >
               <Clock className="w-4 h-4 flex-shrink-0" />
-              Horarios y Bloqueos
+              <span>Horarios</span>
             </button>
 
             <button
               onClick={() => setActiveTab('profile')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === 'profile'
-                  ? 'bg-surface-light text-text-primary border-l-2'
+                  ? 'bg-surface-light text-text-primary md:border-l-2'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
               }`}
               style={{ borderLeftColor: activeTab === 'profile' ? activeColor : undefined }}
             >
               <Settings className="w-4 h-4 flex-shrink-0" />
-              Configurar Perfil
+              <span>Perfil</span>
             </button>
 
             {barbershop.plan_type === 'equipo' && (
               <button
                 onClick={() => setActiveTab('equipo')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === 'equipo'
-                    ? 'bg-surface-light text-text-primary border-l-2'
+                    ? 'bg-surface-light text-text-primary md:border-l-2'
                     : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
                 }`}
                 style={{ borderLeftColor: activeTab === 'equipo' ? activeColor : undefined }}
               >
                 <Users className="w-4 h-4 flex-shrink-0" />
-                Mi Equipo
+                <span>Equipo</span>
               </button>
             )}
           </nav>
@@ -904,7 +904,7 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 bg-background p-6 md:p-10 overflow-y-auto max-h-screen z-10 relative">
+      <main className="bg-background p-4 sm:p-6 md:p-10 z-10 relative md:flex-1 md:overflow-y-auto md:min-h-0">
         {/* Background glow decoration */}
         <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-gold/5 blur-[100px] pointer-events-none -z-10" />
 
