@@ -127,6 +127,34 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-text-primary selection:bg-gold selection:text-background overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "BarberFlow",
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web",
+            url: "https://hgbarberflow.cl",
+            description:
+              "Software de reservas para barberías en Chile. Sin comisiones por cita, sin apps para tus clientes. Agenda inteligente, estadísticas y gestión multi-barbero.",
+            offers: {
+              "@type": "Offer",
+              price: "12",
+              priceCurrency: "USD",
+              priceValidUntil: "2025-12-31",
+            },
+            provider: {
+              "@type": "Organization",
+              name: "HG GrowthLab",
+              url: "https://hg-growthlab.cl",
+            },
+            keywords:
+              "sistema de reservas barbería, software agenda barbería Chile, reservas online barbería",
+          }),
+        }}
+      />
       {/* Background decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1440px] h-[600px] pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-10%] left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-gold/5 blur-[80px] sm:blur-[120px]" />

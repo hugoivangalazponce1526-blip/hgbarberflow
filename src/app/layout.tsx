@@ -22,8 +22,39 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "BarberFlow | Agenda tu Cita en Segundos",
-  description: "La plataforma de agendamiento premium para las mejores barberías. Rápido, fácil y sin esperas.",
+  title: "BarberFlow — Software de Reservas para Barberías en Chile | Desde $12/mes",
+  description:
+    "Automatiza las reservas de tu barbería en Chile. Sin comisiones, sin apps para tus clientes. Panel con estadísticas, gestión de horarios y página de reservas propia. Desde $12/mes.",
+  keywords: [
+    "sistema de reservas barbería",
+    "software agenda barbería Chile",
+    "reservas online barbería",
+    "agenda barbería Chile",
+    "app barbería sin comisiones",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "es_CL",
+    url: "https://hgbarberflow.cl",
+    siteName: "BarberFlow",
+    title: "BarberFlow — Software de Reservas para Barberías en Chile",
+    description:
+      "Deja de coordinar citas por WhatsApp. Tus clientes reservan solos, tú cobras más. Sin comisiones. Desde $12/mes.",
+    images: [
+      {
+        url: "/images/dashboard-mockup.png",
+        width: 1200,
+        height: 630,
+        alt: "BarberFlow — Panel de reservas para barberías",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BarberFlow — Software de Reservas para Barberías en Chile",
+    description: "Sin comisiones. Sin apps. Solo tu barbería funcionando sola.",
+    images: ["/images/dashboard-mockup.png"],
+  },
 };
 
 export default function RootLayout({
