@@ -188,11 +188,13 @@ export default function DashboardPage() {
           .single();
 
         if (profileErr || !userProfile) {
-          throw new Error('No se encontró un perfil para este usuario');
+          // Sign out and redirect — profile missing means account is broken
+          await supabase.auth.signOut();
+          router.replace('/login');
+          return;
         }
 
         if (userProfile.role !== 'barber') {
-          // Redirect if not a barber
           if (userProfile.role === 'super_admin') {
             router.replace('/admin');
           } else {
@@ -211,11 +213,17 @@ export default function DashboardPage() {
           .single();
 
         if (shopErr || !shop) {
-          throw new Error('No se encontró la barbería asociada.');
+          // Don't sign out — might be a temporary error; just redirect to login
+          router.replace('/login');
+          return;
         }
 
-        setBarbershop(shop);
-        
+        setBarbershop({
+          ...shop,
+          plan_type: shop.plan_type ?? 'individual',
+          max_barberos: shop.max_barberos ?? 1,
+        });
+
         // Sync Profile form states
         setShopName(shop.name);
         setShopPhone(shop.phone || '');
@@ -224,8 +232,7 @@ export default function DashboardPage() {
 
       } catch (err: any) {
         console.error('Auth check error:', err);
-        alert(err.message || 'Error de sesión');
-        supabase.auth.signOut().then(() => router.replace('/login'));
+        router.replace('/login');
       } finally {
         setAuthLoading(false);
       }
@@ -244,11 +251,10 @@ export default function DashboardPage() {
     try {
       setTabLoading(true);
       if (activeTab === 'appointments') {
-        // Fetch appointments with service details (joined clientside or nested select)
-        // Since Supabase RLS handles scoping, we don't filter by barbershop_id
         const { data, error } = await supabase
           .from('appointments')
           .select('*, services(name, price)')
+          .eq('barbershop_id', barbershop!.id)
           .order('appointment_date', { ascending: true })
           .order('start_time', { ascending: true });
 
@@ -259,6 +265,7 @@ export default function DashboardPage() {
         const { data, error } = await supabase
           .from('appointments')
           .select('*, services(name, price)')
+          .eq('barbershop_id', barbershop!.id)
           .neq('status', 'cancelada')
           .order('appointment_date', { ascending: true });
         if (error) throw error;
@@ -268,25 +275,26 @@ export default function DashboardPage() {
         const { data, error } = await supabase
           .from('services')
           .select('*')
+          .eq('barbershop_id', barbershop!.id)
           .order('name', { ascending: true });
 
         if (error) throw error;
         setServices(data || []);
 
       } else if (activeTab === 'schedule') {
-        // Fetch schedules
         const { data: scheduleData, error: scheduleErr } = await supabase
           .from('schedules')
           .select('*')
+          .eq('barbershop_id', barbershop!.id)
           .order('weekday', { ascending: true });
 
         if (scheduleErr) throw scheduleErr;
         setSchedules(scheduleData || []);
 
-        // Fetch blocked dates
         const { data: blockedData, error: blockedErr } = await supabase
           .from('blocked_dates')
           .select('*')
+          .eq('barbershop_id', barbershop!.id)
           .order('blocked_date', { ascending: true });
 
         if (blockedErr) throw blockedErr;
@@ -304,7 +312,6 @@ export default function DashboardPage() {
       }
     } catch (err: any) {
       console.error('Error loading tab data:', err);
-      alert('Error al cargar datos de la base de datos');
     } finally {
       setTabLoading(false);
     }

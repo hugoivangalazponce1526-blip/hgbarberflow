@@ -99,11 +99,12 @@ export default function AdminPage() {
           .single();
 
         if (profileErr || !userProfile) {
-          throw new Error('No se pudo verificar tu cuenta de administrador.');
+          await supabase.auth.signOut();
+          router.replace('/login');
+          return;
         }
 
         if (userProfile.role !== 'super_admin') {
-          // Redirect to appropriate page
           if (userProfile.role === 'barber') {
             router.replace('/dashboard');
           } else {
@@ -117,8 +118,7 @@ export default function AdminPage() {
 
       } catch (err: any) {
         console.error('Super Admin auth error:', err);
-        alert(err.message || 'Error de autenticación');
-        supabase.auth.signOut().then(() => router.replace('/login'));
+        router.replace('/login');
       } finally {
         setAuthLoading(false);
       }
