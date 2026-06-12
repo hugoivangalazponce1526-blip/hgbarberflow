@@ -5,6 +5,8 @@ const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const nextConfig = {
   output: 'standalone',
+  compress: true,
+  poweredByHeader: false,
   images: {
     remotePatterns: supabaseHostname
       ? [

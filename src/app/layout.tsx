@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +13,13 @@ const sora = Sora({
   variable: "--font-sora",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  themeColor: '#0D0D0D',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "BarberFlow | Agenda tu Cita en Segundos",
