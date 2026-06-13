@@ -239,39 +239,65 @@ export default function BookingClient({ shopData, slug }: Props) {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-white/8" style={{ backgroundColor: 'rgba(13,13,13,0.92)', backdropFilter: 'blur(12px)' }}>
         <div className="px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            {shop.logo_url ? (
-              <div className="relative w-9 h-9 flex-shrink-0 rounded-xl overflow-hidden border border-white/10">
-                <Image src={shop.logo_url} alt={shop.name} fill className="object-cover" sizes="36px" />
-              </div>
-            ) : (
-              <div className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center font-bold"
-                style={{ backgroundColor: `${color}20`, color, border: `1px solid ${color}30` }}>
-                {shop.name.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="font-sora text-sm font-bold truncate">{shop.name}</p>
-              {shop.address && (
-                <p className="text-[10px] text-text-secondary flex items-center gap-1 truncate">
-                  <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
-                  <span className="truncate">{shop.address.length > 30 ? shop.address.slice(0, 30) + '…' : shop.address}</span>
-                </p>
-              )}
-            </div>
-          </div>
+          <p className="font-sora text-sm font-bold truncate">{shop.name}</p>
           {shop.phone && (
             <a href={`tel:${shop.phone}`}
-              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border border-white/8 text-text-secondary"
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 h-8 rounded-lg border border-white/8 text-text-secondary text-xs font-medium"
               style={{ backgroundColor: 'rgba(30,30,30,0.8)' }}>
-              <Phone className="w-4 h-4" />
+              <Phone className="w-3.5 h-3.5" />
+              Llamar
             </a>
           )}
         </div>
       </header>
 
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden" style={{ minHeight: 180 }}>
+        {/* Fondo desenfocado con la foto si existe */}
+        {shop.logo_url && (
+          <div className="absolute inset-0">
+            <Image src={shop.logo_url} alt="" fill className="object-cover scale-110" style={{ filter: 'blur(24px)', opacity: 0.18 }} sizes="100vw" />
+          </div>
+        )}
+        {/* Gradiente de marca */}
+        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${color}18 0%, transparent 65%)` }} />
+        <div className="absolute inset-x-0 bottom-0 h-16" style={{ background: 'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
+
+        {/* Contenido hero */}
+        <div className="relative z-10 flex flex-col items-center pt-8 pb-8 px-4 text-center">
+          {shop.logo_url ? (
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden mb-4 shadow-2xl"
+              style={{ border: `2px solid ${color}40`, boxShadow: `0 12px 40px ${color}25, 0 4px 16px rgba(0,0,0,0.6)` }}>
+              <Image src={shop.logo_url} alt={shop.name} fill className="object-cover" sizes="96px" priority />
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-2xl flex items-center justify-center font-bold text-3xl font-sora mb-4 shadow-2xl"
+              style={{ backgroundColor: `${color}18`, color, border: `2px solid ${color}35`, boxShadow: `0 12px 40px ${color}20` }}>
+              {shop.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <h1 className="font-sora text-xl font-bold mb-1 leading-tight">{shop.name}</h1>
+          {shop.address && (
+            <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
+              <MapPin className="w-3 h-3 flex-shrink-0" />
+              <span>{shop.address}</span>
+            </p>
+          )}
+          {/* Watermark */}
+          <div className="mt-4 flex items-center gap-1.5 opacity-25">
+            <svg viewBox="0 0 14 20" fill="none" style={{ width: 9, height: 14 }}>
+              <rect x="1" y="1" width="12" height="18" rx="6" fill="none" stroke="currentColor" strokeWidth="1"/>
+              <rect x="4" y="4" width="6" height="3" rx="0.5" fill="currentColor"/>
+              <rect x="4" y="9" width="6" height="3" rx="0.5" fill="currentColor"/>
+              <rect x="4" y="14" width="6" height="2.5" rx="0.5" fill="currentColor"/>
+            </svg>
+            <span className="text-[10px] text-text-secondary font-inter tracking-wide">BarberFlow</span>
+          </div>
+        </div>
+      </div>
+
       {/* ── Content ─────────────────────────────────────────────────────── */}
-      <div className="px-4 py-4 flex flex-col gap-3 relative z-10">
+      <div className="px-4 pb-4 flex flex-col gap-3 relative z-10">
 
         {/* ── PASO 1: Barbero ── */}
         {showBarberStep && (
