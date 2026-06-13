@@ -3,8 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   body {
+    overflow-x: hidden;
+    max-width: 100%;
     @apply bg-background text-text-primary font-inter antialiased;
+  }
+
+  /* Prevents iOS from zooming in when tapping inputs */
+  input, select, textarea {
+    font-size: 16px !important;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -28,6 +44,13 @@
   background: #C9A84C;
 }
 
+/* Safe-area bottom padding for mobile nav clearance */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe-nav {
+    padding-bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+}
+
 /* Glassmorphism utility */
 .glass {
   background: rgba(36, 36, 36, 0.75);
@@ -35,4 +58,3 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
-

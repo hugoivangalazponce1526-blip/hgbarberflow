@@ -214,7 +214,7 @@ export default function DashboardPage() {
           .single();
 
         if (shopErr || !shop) {
-          // Don't sign out — might be a temporary error; just redirect to login
+          await supabase.auth.signOut();
           router.replace('/login');
           return;
         }
@@ -776,14 +776,48 @@ export default function DashboardPage() {
   const activeColor = barbershop.brand_color || '#C9A84C';
 
   return (
-    <div className="bg-background text-text-primary font-inter overflow-x-hidden md:flex md:flex-row md:h-screen">
-      
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-surface-dark border-b md:border-b-0 md:border-r border-white/5 md:flex md:flex-col md:justify-between md:shrink-0 md:overflow-y-auto z-20">
+    <div className="bg-background text-text-primary font-inter md:flex md:flex-row md:h-screen">
+
+      {/* ── MOBILE: Compact Top Header ────────────────────────────── */}
+      <header className="md:hidden sticky top-0 z-30 bg-surface-dark border-b border-white/5 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: `${activeColor}15`, border: `1px solid ${activeColor}30` }}
+          >
+            <Scissors className="w-4 h-4 rotate-90" style={{ color: activeColor }} />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-sora text-sm font-bold truncate max-w-[170px]">{barbershop.name}</h2>
+            <span className="text-[9px] text-text-secondary font-semibold uppercase tracking-wider">Panel Barbero</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <a
+            href={`/b/${barbershop.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-xl bg-surface-light border border-white/5 text-text-secondary active:scale-95 transition-all"
+            title="Ver enlace público"
+          >
+            <Globe className="w-4 h-4" />
+          </a>
+          <button
+            onClick={handleLogout}
+            className="p-2 rounded-xl border border-white/5 text-text-secondary hover:text-danger active:scale-95 transition-all"
+            title="Cerrar Sesión"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </header>
+
+      {/* ── DESKTOP: Sidebar Navigation ───────────────────────────── */}
+      <aside className="hidden md:flex w-64 bg-surface-dark border-r border-white/5 flex-col justify-between shrink-0 overflow-y-auto z-20">
         <div>
           {/* Header Sidebar */}
           <div className="p-6 border-b border-white/5 flex items-center gap-3">
-            <div 
+            <div
               className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/5"
               style={{ backgroundColor: `${activeColor}15`, borderColor: `${activeColor}30` }}
             >
@@ -797,92 +831,35 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Nav Links */}
-          <nav className="px-3 py-2 md:p-4 flex flex-row md:flex-col gap-1 overflow-x-auto scrollbar-none">
-            <button
-              onClick={() => setActiveTab('appointments')}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === 'appointments'
-                  ? 'bg-surface-light text-text-primary md:border-l-2'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
-              }`}
-              style={{ borderLeftColor: activeTab === 'appointments' ? activeColor : undefined }}
-            >
-              <Calendar className="w-4 h-4 flex-shrink-0" />
-              <span>Citas</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === 'stats'
-                  ? 'bg-surface-light text-text-primary md:border-l-2'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
-              }`}
-              style={{ borderLeftColor: activeTab === 'stats' ? activeColor : undefined }}
-            >
-              <TrendingUp className="w-4 h-4 flex-shrink-0" />
-              <span>Stats</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('services')}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === 'services'
-                  ? 'bg-surface-light text-text-primary md:border-l-2'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
-              }`}
-              style={{ borderLeftColor: activeTab === 'services' ? activeColor : undefined }}
-            >
-              <Scissors className="w-4 h-4 flex-shrink-0" />
-              <span>Servicios</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('schedule')}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === 'schedule'
-                  ? 'bg-surface-light text-text-primary md:border-l-2'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
-              }`}
-              style={{ borderLeftColor: activeTab === 'schedule' ? activeColor : undefined }}
-            >
-              <Clock className="w-4 h-4 flex-shrink-0" />
-              <span>Horarios</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === 'profile'
-                  ? 'bg-surface-light text-text-primary md:border-l-2'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
-              }`}
-              style={{ borderLeftColor: activeTab === 'profile' ? activeColor : undefined }}
-            >
-              <Settings className="w-4 h-4 flex-shrink-0" />
-              <span>Perfil</span>
-            </button>
-
-            {barbershop.plan_type === 'equipo' && (
+          {/* Desktop Nav Links */}
+          <nav className="p-4 flex flex-col gap-1">
+            {([
+              { tab: 'appointments' as const, label: 'Citas',     Icon: Calendar },
+              { tab: 'stats'        as const, label: 'Stats',     Icon: TrendingUp },
+              { tab: 'services'     as const, label: 'Servicios', Icon: Scissors },
+              { tab: 'schedule'     as const, label: 'Horarios',  Icon: Clock },
+              { tab: 'profile'      as const, label: 'Perfil',    Icon: Settings },
+              ...(barbershop.plan_type === 'equipo' ? [{ tab: 'equipo' as const, label: 'Equipo', Icon: Users }] : []),
+            ]).map(({ tab, label, Icon }) => (
               <button
-                onClick={() => setActiveTab('equipo')}
-                className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
-                  activeTab === 'equipo'
-                    ? 'bg-surface-light text-text-primary md:border-l-2'
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'bg-surface-light text-text-primary border-l-2'
                     : 'text-text-secondary hover:text-text-primary hover:bg-surface-light/30'
                 }`}
-                style={{ borderLeftColor: activeTab === 'equipo' ? activeColor : undefined }}
+                style={{ borderLeftColor: activeTab === tab ? activeColor : undefined }}
               >
-                <Users className="w-4 h-4 flex-shrink-0" />
-                <span>Equipo</span>
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span>{label}</span>
               </button>
-            )}
+            ))}
           </nav>
         </div>
 
         {/* Footer Sidebar (Desktop Only) */}
-        <div className="p-4 border-t border-white/5 hidden md:flex flex-col gap-4">
+        <div className="p-4 border-t border-white/5 flex flex-col gap-4">
           <div className="flex items-center gap-3 bg-background/50 p-3 rounded-2xl border border-white/5">
             <div className="w-9 h-9 rounded-full bg-surface-light border border-white/10 flex items-center justify-center font-bold text-xs text-gold">
               {profile.full_name.substring(0, 2).toUpperCase()}
@@ -903,15 +880,52 @@ export default function DashboardPage() {
         </div>
       </aside>
 
+      {/* ── MOBILE: Fixed Bottom Nav Bar ──────────────────────────── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-dark/95 backdrop-blur-md border-t border-white/10"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="flex items-center justify-around px-1 py-1">
+          {([
+            { tab: 'appointments' as const, label: 'Citas',     Icon: Calendar },
+            { tab: 'stats'        as const, label: 'Stats',     Icon: TrendingUp },
+            { tab: 'services'     as const, label: 'Servicios', Icon: Scissors },
+            { tab: 'schedule'     as const, label: 'Horarios',  Icon: Clock },
+            { tab: 'profile'      as const, label: 'Perfil',    Icon: Settings },
+            ...(barbershop.plan_type === 'equipo' ? [{ tab: 'equipo' as const, label: 'Equipo', Icon: Users }] : []),
+          ]).map(({ tab, label, Icon }) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className="flex flex-col items-center gap-0.5 py-2 px-1 flex-1 min-w-0 active:scale-90 transition-all"
+            >
+              <div
+                className={`p-1.5 rounded-xl transition-all ${activeTab === tab ? 'bg-surface-light' : ''}`}
+                style={activeTab === tab ? { backgroundColor: `${activeColor}20` } : {}}
+              >
+                <Icon
+                  className="w-5 h-5 flex-shrink-0"
+                  style={{ color: activeTab === tab ? activeColor : 'rgb(160,160,160)' }}
+                />
+              </div>
+              <span
+                className="text-[9px] font-semibold truncate w-full text-center leading-none"
+                style={{ color: activeTab === tab ? activeColor : 'rgb(120,120,120)' }}
+              >
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
       {/* Main Content Area */}
-      <main className="bg-background p-4 sm:p-6 md:p-10 z-10 relative md:flex-1 md:overflow-y-auto md:min-h-0">
+      <main className="bg-background p-4 sm:p-6 md:p-10 z-10 relative md:flex-1 md:overflow-y-auto md:min-h-0 pb-32 md:pb-10">
         {/* Background glow decoration */}
         <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-gold/5 blur-[100px] pointer-events-none -z-10" />
 
         {/* Title Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-3 md:pb-6 mb-4 md:mb-8">
           <div>
-            <h1 className="font-sora text-2xl md:text-3xl font-extrabold capitalize">
+            <h1 className="font-sora text-xl md:text-3xl font-extrabold capitalize">
               {activeTab === 'appointments' && 'Gestión de Citas'}
               {activeTab === 'stats'        && 'Estadísticas de Ganancias'}
               {activeTab === 'services'     && 'Catálogo de Servicios'}
@@ -919,7 +933,7 @@ export default function DashboardPage() {
               {activeTab === 'profile'      && 'Información de la Barbería'}
               {activeTab === 'equipo'       && 'Mi Equipo'}
             </h1>
-            <p className="text-xs md:text-sm text-text-secondary mt-1 font-medium">
+            <p className="hidden md:block text-xs md:text-sm text-text-secondary mt-1 font-medium">
               {activeTab === 'appointments' && 'Monitorea, confirma o cancela las reservas de tus clientes.'}
               {activeTab === 'stats'        && 'Ingresos por día, mes y servicio basados en tus citas confirmadas.'}
               {activeTab === 'services'     && 'Crea, edita o desactiva los servicios ofrecidos en tu local.'}
@@ -929,8 +943,8 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Quick links & buttons */}
-          <div className="flex gap-3">
+          {/* Quick links & buttons (desktop only) */}
+          <div className="hidden md:flex gap-3">
             <a 
               href={`/b/${barbershop.slug}`} 
               target="_blank" 
@@ -952,6 +966,18 @@ export default function DashboardPage() {
               </button>
             )}
           </div>
+
+          {/* Mobile: Agregar Servicio button */}
+          {activeTab === 'services' && (
+            <button
+              onClick={openCreateServiceModal}
+              className="md:hidden text-background font-bold px-3 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-lg active:scale-95"
+              style={{ backgroundColor: activeColor }}
+            >
+              <Plus className="w-4 h-4 text-background" />
+              Agregar
+            </button>
+          )}
         </div>
 
         {/* Dynamic Tab Body */}
@@ -1044,16 +1070,16 @@ export default function DashboardPage() {
                             {/* Actions */}
                             <div className="flex gap-2 self-end sm:self-center border-t sm:border-t-0 border-white/5 pt-3 sm:pt-0 w-full sm:w-auto justify-end">
                               {appointment.client_phone && (
-                                <a 
+                                <a
                                   href={`tel:${appointment.client_phone}`}
                                   className="p-2 border border-white/5 bg-surface-dark hover:bg-surface-light rounded-lg text-text-secondary hover:text-text-primary transition-all text-xs flex items-center gap-1.5"
                                   title="Llamar Cliente"
                                 >
                                   <Phone className="w-3.5 h-3.5" />
-                                  <span className="sm:hidden">Llamar</span>
+                                  <span className="hidden sm:inline">Llamar</span>
                                 </a>
                               )}
-                              
+
                               {appointment.status !== 'completada' && appointment.status !== 'cancelada' && (
                                 <>
                                   <button
@@ -1062,7 +1088,7 @@ export default function DashboardPage() {
                                     title="Completar Cita"
                                   >
                                     <CheckCircle className="w-3.5 h-3.5" />
-                                    <span>Completar</span>
+                                    <span className="hidden sm:inline">Completar</span>
                                   </button>
                                   <button
                                     onClick={() => updateAppointmentStatus(appointment.id, 'cancelada')}
@@ -1070,7 +1096,7 @@ export default function DashboardPage() {
                                     title="Cancelar Cita"
                                   >
                                     <XCircle className="w-3.5 h-3.5" />
-                                    <span>Cancelar</span>
+                                    <span className="hidden sm:inline">Cancelar</span>
                                   </button>
                                 </>
                               )}
@@ -1082,7 +1108,7 @@ export default function DashboardPage() {
                                   title="Re-confirmar Cita"
                                 >
                                   <Check className="w-3.5 h-3.5" />
-                                  <span>Reactivar</span>
+                                  <span className="hidden sm:inline">Reactivar</span>
                                 </button>
                               )}
                             </div>
@@ -1155,9 +1181,9 @@ export default function DashboardPage() {
                     <div className="glass border border-white/5 p-6 rounded-3xl">
                       <h3 className="font-sora text-sm font-bold mb-5">Ingresos últimos 7 días</h3>
                       <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={last7Days} margin={{ left: -15, bottom: 0 }}>
-                          <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#6b7280' }} />
-                          <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} />
+                        <BarChart data={last7Days} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                          <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#6b7280' }} />
+                          <YAxis tick={{ fontSize: 9, fill: '#6b7280' }} width={40} />
                           <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, fontSize: 11 }} formatter={(v: any) => [`$${v}`, 'Ingresos']} />
                           <Bar dataKey="revenue" fill={activeColor} radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -1170,8 +1196,8 @@ export default function DashboardPage() {
                         <p className="text-xs text-text-secondary py-8 text-center">Sin datos aún</p>
                       ) : (
                         <ResponsiveContainer width="100%" height={200}>
-                          <PieChart>
-                            <Pie data={revenueByService} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={75} label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
+                          <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                            <Pie data={revenueByService} dataKey="revenue" nameKey="name" cx="50%" cy="45%" outerRadius={65} fontSize={10}>
                               {revenueByService.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                             </Pie>
                             <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, fontSize: 11 }} formatter={(v: any) => [`$${v}`, 'Ingresos']} />
@@ -1186,9 +1212,9 @@ export default function DashboardPage() {
                   <div className="glass border border-white/5 p-6 rounded-3xl">
                     <h3 className="font-sora text-sm font-bold mb-5">Ingresos últimos 6 meses</h3>
                     <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={last6Months} margin={{ left: -15, bottom: 0 }}>
-                        <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} />
-                        <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
+                      <BarChart data={last6Months} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                        <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#6b7280' }} />
+                        <YAxis tick={{ fontSize: 9, fill: '#6b7280' }} width={40} />
                         <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, fontSize: 11 }} formatter={(v: any) => [`$${v}`, 'Ingresos']} />
                         <Bar dataKey="revenue" fill={activeColor} radius={[4, 4, 0, 0]} />
                       </BarChart>
@@ -1254,8 +1280,8 @@ export default function DashboardPage() {
 
                 {/* Service Form Modal */}
                 {serviceModalOpen && (
-                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="max-w-md w-full glass border border-white/5 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+                    <div className="max-w-md w-full glass border border-white/5 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90dvh] overflow-y-auto">
                       <button 
                         onClick={() => setServiceModalOpen(false)}
                         className="absolute top-4 right-4 p-1 text-text-secondary hover:text-text-primary transition-colors"
@@ -1407,7 +1433,7 @@ export default function DashboardPage() {
 
                           {/* Slot grid */}
                           {isWorking && (
-                            <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 pt-1">
+                            <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 gap-1.5 pt-1">
                               {ALL_TIME_SLOTS.map(slot => {
                                 const on = activeSlots.includes(slot);
                                 return (
