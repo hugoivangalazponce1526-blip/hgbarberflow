@@ -21,6 +21,8 @@ export interface Barbershop {
 export interface Barber {
   id: string;
   full_name: string;
+  avatar_url: string | null;
+  brand_color: string | null;
 }
 
 export interface Service {

@@ -55,6 +55,8 @@ interface TeamBarber {
   id: string;
   full_name: string;
   role: string;
+  avatar_url: string | null;
+  brand_color: string | null;
 }
 
 interface Profile {
@@ -62,6 +64,8 @@ interface Profile {
   barbershop_id: string;
   full_name: string;
   role: string;
+  avatar_url: string | null;
+  brand_color: string | null;
 }
 
 interface Service {
@@ -169,6 +173,12 @@ export default function DashboardPage() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
 
+  // Barber personal profile (equipo non-owner)
+  const [barberAvatarUrl, setBarberAvatarUrl] = useState<string | null>(null);
+  const [barberBrandColor, setBarberBrandColor] = useState('#C9A84C');
+  const [barberAvatarUploading, setBarberAvatarUploading] = useState(false);
+  const [barberProfileSaving, setBarberProfileSaving] = useState(false);
+
   // Validate Session and Load User Profile
   useEffect(() => {
     async function checkAuth() {
@@ -230,6 +240,10 @@ export default function DashboardPage() {
         setShopPhone(shop.phone || '');
         setShopAddress(shop.address || '');
         setShopBrandColor(shop.brand_color || '#C9A84C');
+
+        // Sync barber personal profile states (equipo non-owner)
+        setBarberAvatarUrl(userProfile.avatar_url ?? null);
+        setBarberBrandColor(userProfile.brand_color || '#C9A84C');
 
       } catch (err: any) {
         console.error('Auth check error:', err);
@@ -334,7 +348,7 @@ export default function DashboardPage() {
       } else if (activeTab === 'equipo') {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, full_name, role, avatar_url, brand_color')
           .eq('barbershop_id', barbershop!.id)
           .eq('role', 'barber')
           .order('full_name', { ascending: true });
@@ -729,6 +743,52 @@ export default function DashboardPage() {
       alert(err.message || 'Error al subir el logo');
     } finally {
       setLogoUploading(false);
+    }
+  };
+
+  // Save barber personal profile (avatar + color)
+  const handleBarberProfileSave = async () => {
+    if (!profile) return;
+    try {
+      setBarberProfileSaving(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ brand_color: barberBrandColor })
+        .eq('id', profile.id);
+      if (error) throw error;
+      setProfile({ ...profile, brand_color: barberBrandColor });
+      alert('¡Perfil actualizado!');
+    } catch (err: any) {
+      alert(err.message || 'Error al guardar');
+    } finally {
+      setBarberProfileSaving(false);
+    }
+  };
+
+  const handleBarberAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    try {
+      setBarberAvatarUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const filePath = `barber-${profile.id}-${Math.floor(Date.now() / 1000)}.${fileExt}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('logos')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(filePath);
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id);
+      if (dbErr) throw dbErr;
+      setBarberAvatarUrl(publicUrl);
+      setProfile({ ...profile, avatar_url: publicUrl });
+      alert('¡Foto subida con éxito!');
+    } catch (err: any) {
+      alert(err.message || 'Error al subir la foto');
+    } finally {
+      setBarberAvatarUploading(false);
     }
   };
 
@@ -1675,12 +1735,23 @@ export default function DashboardPage() {
                         key={barber.id}
                         className="bg-surface-dark border border-white/5 rounded-xl px-5 py-4 flex items-center gap-4"
                       >
-                        <div className="w-9 h-9 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-gold text-xs font-bold">{barber.full_name.charAt(0).toUpperCase()}</span>
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border border-white/8"
+                          style={{ borderColor: barber.brand_color ? `${barber.brand_color}40` : undefined }}>
+                          {barber.avatar_url ? (
+                            <Image src={barber.avatar_url} alt={barber.full_name} fill className="object-cover" sizes="40px" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-sm font-bold"
+                              style={{ backgroundColor: barber.brand_color ? `${barber.brand_color}20` : 'rgba(201,168,76,0.1)', color: barber.brand_color || '#C9A84C' }}>
+                              {barber.full_name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-text-primary truncate">{barber.full_name}</p>
-                          <p className="text-xs text-text-secondary capitalize">{barber.role}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {barber.brand_color && <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: barber.brand_color }} />}
+                            <p className="text-xs text-text-secondary capitalize">{barber.avatar_url ? 'Foto subida' : 'Sin foto'}</p>
+                          </div>
                         </div>
                         <button
                           onClick={() => handleRemoveBarber(barber.id, barber.full_name)}
@@ -1698,6 +1769,95 @@ export default function DashboardPage() {
 
             {activeTab === 'profile' && (
               <div className="grid md:grid-cols-12 gap-8 items-start animate-fade-in font-inter">
+
+                {/* ── Perfil personal del barbero (equipo no-owner) ── */}
+                {barbershop.plan_type === 'equipo' && barbershop.owner_id !== profile!.id && (
+                  <>
+                    {/* Foto + Color personal */}
+                    <div className="md:col-span-7 glass border border-white/5 p-6 sm:p-8 rounded-3xl flex flex-col gap-6">
+                      <h3 className="font-sora text-base font-bold pb-2 border-b border-white/5">Tu Perfil de Barbero</h3>
+
+                      {/* Avatar */}
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-white/10 bg-surface-dark flex items-center justify-center"
+                          style={{ borderColor: `${barberBrandColor}30` }}>
+                          {barberAvatarUrl ? (
+                            <Image src={barberAvatarUrl} alt="Tu foto" fill className="object-cover" />
+                          ) : (
+                            <span className="font-sora font-bold text-4xl" style={{ color: barberBrandColor }}>
+                              {profile!.full_name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          {barberAvatarUploading && (
+                            <div className="absolute inset-0 bg-black/65 flex items-center justify-center">
+                              <Loader2 className="w-6 h-6 animate-spin" style={{ color: barberBrandColor }} />
+                            </div>
+                          )}
+                        </div>
+                        <label className="w-full max-w-[200px]">
+                          <span className="w-full flex items-center justify-center gap-2 bg-surface-light border border-white/5 hover:border-white/20 font-semibold py-3 px-4 rounded-xl transition-all text-xs font-sora cursor-pointer">
+                            <Upload className="w-4 h-4 text-text-secondary" />
+                            {barberAvatarUrl ? 'Cambiar Foto' : 'Subir Foto'}
+                          </span>
+                          <input type="file" accept="image/*" onChange={handleBarberAvatarUpload} disabled={barberAvatarUploading} className="hidden" />
+                        </label>
+                        <p className="text-[10px] text-text-secondary text-center leading-normal max-w-[200px]">
+                          Esta foto se mostrará a los clientes en la página de reservas.
+                        </p>
+                      </div>
+
+                      {/* Color personal */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs text-text-secondary font-medium pl-1">Tu Color de Marca</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={barberBrandColor}
+                            onChange={(e) => setBarberBrandColor(e.target.value)}
+                            className="w-12 h-12 rounded-xl bg-transparent border-0 cursor-pointer overflow-hidden p-0"
+                          />
+                          <span className="font-mono text-sm text-text-secondary uppercase">{barberBrandColor}</span>
+                        </div>
+                        <p className="text-[10px] text-text-secondary pl-1">
+                          El color que verán los clientes cuando te seleccionan.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleBarberProfileSave}
+                        disabled={barberProfileSaving}
+                        className="w-full text-background font-bold py-4 rounded-xl transition-all shadow-lg text-sm flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                        style={{ backgroundColor: barberBrandColor }}
+                      >
+                        {barberProfileSaving ? (
+                          <><Loader2 className="w-4 h-4 animate-spin text-background" />Guardando...</>
+                        ) : 'Guardar Perfil'}
+                      </button>
+                    </div>
+
+                    {/* Link de reserva */}
+                    <div className="md:col-span-5 glass border border-white/5 p-6 rounded-3xl">
+                      <h3 className="font-sora text-base font-bold pb-2 border-b border-white/5 mb-4">Tu Enlace de Reserva</h3>
+                      <p className="text-xs text-text-secondary leading-relaxed mb-4">
+                        Comparte este enlace en tus redes. Los clientes podrán elegirte directamente.
+                      </p>
+                      <div className="flex flex-col gap-2.5">
+                        <div className="bg-surface-dark border border-white/5 rounded-xl px-4 py-3 font-mono text-xs truncate" style={{ color: barberBrandColor }}>
+                          {publicLink}
+                        </div>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(publicLink); alert('¡Enlace copiado!'); }}
+                          className="w-full bg-surface-light hover:bg-white/10 border border-white/5 font-semibold py-2.5 rounded-xl transition-all text-xs font-sora"
+                        >
+                          Copiar Enlace
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* ── Perfil del dueño / barbería ── */}
+                {(barbershop.plan_type === 'individual' || barbershop.owner_id === profile!.id) && (<>
                 {/* Profile Form */}
                 <div className="md:col-span-7 glass border border-white/5 p-6 sm:p-8 rounded-3xl">
                   <h3 className="font-sora text-base font-bold pb-2 border-b border-white/5 mb-6">Información General</h3>
@@ -1853,6 +2013,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
+                </>)}
               </div>
             )}
           </>

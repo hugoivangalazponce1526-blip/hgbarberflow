@@ -65,10 +65,17 @@ export default function BookingClient({ shopData, slug }: Props) {
   const SLOTS_PER_PAGE = 9;
 
   const shop     = shopData.barbershop;
-  const color    = shop.brand_color || '#C9A84C';
   const isEquipo = shop.plan_type === 'equipo';
   const barbers  = shopData.barbers;
   const showBarberStep = isEquipo && barbers.length > 1;
+
+  // Color adapts to selected barber (equipo), fallback to shop color
+  const color = (isEquipo && selectedBarber?.brand_color) || shop.brand_color || '#C9A84C';
+
+  // Hero adapts: shows barber identity once selected, otherwise shop identity
+  const heroPhoto    = (isEquipo && selectedBarber?.avatar_url) ? selectedBarber.avatar_url : shop.logo_url;
+  const heroName     = (isEquipo && selectedBarber) ? selectedBarber.full_name : shop.name;
+  const heroSub      = (isEquipo && selectedBarber) ? shop.name : shop.address;
 
   const visibleServices: Service[] = isEquipo && barbers.length > 0
     ? (selectedBarber ? shopData.services.filter(s => s.barber_id === selectedBarber.id) : [])
@@ -253,34 +260,34 @@ export default function BookingClient({ shopData, slug }: Props) {
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden" style={{ minHeight: 180 }}>
-        {/* Fondo desenfocado con la foto si existe */}
-        {shop.logo_url && (
+        {/* Fondo desenfocado con la foto activa */}
+        {heroPhoto && (
           <div className="absolute inset-0">
-            <Image src={shop.logo_url} alt="" fill className="object-cover scale-110" style={{ filter: 'blur(24px)', opacity: 0.18 }} sizes="100vw" />
+            <Image src={heroPhoto} alt="" fill className="object-cover scale-110" style={{ filter: 'blur(24px)', opacity: 0.18 }} sizes="100vw" />
           </div>
         )}
-        {/* Gradiente de marca */}
+        {/* Gradiente de marca — se actualiza con el color del barbero seleccionado */}
         <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${color}18 0%, transparent 65%)` }} />
         <div className="absolute inset-x-0 bottom-0 h-16" style={{ background: 'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
 
         {/* Contenido hero */}
         <div className="relative z-10 flex flex-col items-center pt-8 pb-8 px-4 text-center">
-          {shop.logo_url ? (
+          {heroPhoto ? (
             <div className="relative w-24 h-24 rounded-2xl overflow-hidden mb-4 shadow-2xl"
               style={{ border: `2px solid ${color}40`, boxShadow: `0 12px 40px ${color}25, 0 4px 16px rgba(0,0,0,0.6)` }}>
-              <Image src={shop.logo_url} alt={shop.name} fill className="object-cover" sizes="96px" priority />
+              <Image src={heroPhoto} alt={heroName} fill className="object-cover" sizes="96px" priority />
             </div>
           ) : (
             <div className="w-24 h-24 rounded-2xl flex items-center justify-center font-bold text-3xl font-sora mb-4 shadow-2xl"
               style={{ backgroundColor: `${color}18`, color, border: `2px solid ${color}35`, boxShadow: `0 12px 40px ${color}20` }}>
-              {shop.name.charAt(0).toUpperCase()}
+              {heroName.charAt(0).toUpperCase()}
             </div>
           )}
-          <h1 className="font-sora text-xl font-bold mb-1 leading-tight">{shop.name}</h1>
-          {shop.address && (
+          <h1 className="font-sora text-xl font-bold mb-1 leading-tight">{heroName}</h1>
+          {heroSub && (
             <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span>{shop.address}</span>
+              {!selectedBarber && <MapPin className="w-3 h-3 flex-shrink-0" />}
+              <span>{heroSub}</span>
             </p>
           )}
           {/* Watermark */}
@@ -310,20 +317,37 @@ export default function BookingClient({ shopData, slug }: Props) {
             <div className="p-3 flex flex-col gap-2">
               {barbers.map(b => {
                 const sel = selectedBarber?.id === b.id;
+                const bColor = b.brand_color || shop.brand_color || '#C9A84C';
                 return (
                   <button key={b.id}
                     onClick={() => { setSelectedBarber(b); setSelectedService(null); setSelectedDate(null); setSelectedSlot(null); }}
                     className="flex items-center gap-3 p-3 rounded-xl border transition-all active:scale-[0.98] text-left"
                     style={{
-                      backgroundColor: sel ? `${color}15` : 'rgba(30,30,30,0.6)',
-                      borderColor: sel ? color : 'rgba(255,255,255,0.06)',
+                      backgroundColor: sel ? `${bColor}15` : 'rgba(30,30,30,0.6)',
+                      borderColor: sel ? bColor : 'rgba(255,255,255,0.06)',
                     }}>
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm"
-                      style={{ backgroundColor: `${color}20`, color }}>
-                      {b.full_name.charAt(0).toUpperCase()}
+                    {/* Avatar — foto si tiene, sino inicial con su color */}
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border"
+                      style={{ borderColor: sel ? `${bColor}50` : 'rgba(255,255,255,0.06)' }}>
+                      {b.avatar_url ? (
+                        <Image src={b.avatar_url} alt={b.full_name} fill className="object-cover" sizes="48px" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold text-lg font-sora"
+                          style={{ backgroundColor: `${bColor}20`, color: bColor }}>
+                          {b.full_name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
-                    <span className="font-sora font-semibold text-sm flex-1 truncate">{b.full_name}</span>
-                    {sel && <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color }} />}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sora font-semibold text-sm truncate">{b.full_name}</p>
+                      {b.brand_color && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: bColor }} />
+                          <span className="text-[10px] text-text-secondary font-mono uppercase">{bColor}</span>
+                        </div>
+                      )}
+                    </div>
+                    {sel && <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: bColor }} />}
                   </button>
                 );
               })}
