@@ -234,27 +234,31 @@ export default function Home() {
       <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-10">
         <div className="grid md:grid-cols-12 gap-12 md:gap-8 items-center">
           <div className="md:col-span-7 flex flex-col gap-6 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 self-center md:self-start">
-              <Sparkles className="w-4 h-4 text-gold" />
-              <span className="text-xs font-semibold text-gold tracking-wider uppercase font-sora">
-                ⚡ Sistema de reservas para barberías · +200 barberos en Chile
+            <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-3 py-1.5 self-center md:self-start max-w-full">
+              <Sparkles className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs font-semibold text-gold tracking-wider uppercase font-sora text-center">
+                ⚡ Reservas para barberías · +200 en Chile
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-b from-text-primary to-text-secondary bg-clip-text text-transparent">
-              El sistema de reservas <br />
+            <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+              <span className="bg-gradient-to-b from-text-primary to-text-secondary bg-clip-text text-transparent">
+                El sistema de reservas{' '}
+              </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 premium
-              </span>{' '}
-              que tu barbería merece.
+              </span>
+              <span className="bg-gradient-to-b from-text-primary to-text-secondary bg-clip-text text-transparent">
+                {' '}que tu barbería merece.
+              </span>
             </h1>
 
             <div className="flex flex-col gap-2">
-              <p className="text-base sm:text-lg text-text-secondary max-w-xl mx-auto md:mx-0 leading-relaxed font-inter">
-                BarberFlow automatiza tus citas, gestiona tu equipo y deleita a tus clientes con una interfaz rápida, elegante y sin esperas.
+              <p className="text-sm sm:text-lg text-text-secondary max-w-xl mx-auto md:mx-0 leading-relaxed font-inter">
+                BarberFlow automatiza tus citas, gestiona tu equipo y deleita a tus clientes con una interfaz rápida y elegante.
               </p>
-              <p className="text-sm font-semibold text-gold/80 max-w-xl mx-auto md:mx-0 font-inter">
-                Sin comisiones por cita. Sin apps que instalar. Solo tu barbería funcionando sola.
+              <p className="text-xs sm:text-sm font-semibold text-gold/80 max-w-xl mx-auto md:mx-0 font-inter">
+                Sin comisiones. Sin apps. Solo tu barbería funcionando sola.
               </p>
             </div>
 
@@ -297,12 +301,72 @@ export default function Home() {
 
           <div className="md:col-span-5 relative flex justify-center items-center">
             <div className="absolute w-[80%] h-[80%] rounded-full bg-gold/10 blur-[60px] -z-10" />
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/80 border border-white/5 glass p-2 max-w-[450px] md:max-w-full">
-              <div className="rounded-xl bg-surface-dark border border-white/5 aspect-[4/3] flex flex-col items-center justify-center gap-4 px-8 text-center" style={{ minHeight: 320 }}>
-                <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-                  <svg className="w-7 h-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+            {/* Dashboard Mockup */}
+            <div className="relative w-full max-w-[460px] rounded-2xl overflow-hidden shadow-2xl shadow-black/80 border border-white/10" style={{ background: '#161616' }}>
+              {/* Browser chrome */}
+              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-white/5" style={{ background: '#1e1e1e' }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-danger/60" />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#C9A84C99' }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-success/60" />
+                <span className="ml-3 flex-1 bg-background/60 rounded text-[9px] text-text-secondary/40 px-2 py-0.5 font-mono">hgbarberflow.cl/dashboard</span>
+              </div>
+              <div className="flex" style={{ height: 310 }}>
+                {/* Sidebar */}
+                <div className="w-36 border-r border-white/5 flex flex-col py-3 px-2 gap-0.5 shrink-0" style={{ background: '#1a1a1a' }}>
+                  <div className="flex items-center gap-2 px-2 py-2 mb-1">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#C9A84C20', border: '1px solid #C9A84C30' }}>
+                      <Scissors className="w-3 h-3 rotate-90" style={{ color: '#C9A84C' }} />
+                    </div>
+                    <span className="text-[10px] font-bold truncate" style={{ color: '#F5F5F5' }}>Barbería Elite</span>
+                  </div>
+                  {[
+                    { label: 'Citas', Icon: Calendar, active: true },
+                    { label: 'Stats', Icon: TrendingUp, active: false },
+                    { label: 'Servicios', Icon: Scissors, active: false },
+                    { label: 'Horarios', Icon: Clock, active: false },
+                    { label: 'Perfil', Icon: Settings, active: false },
+                  ].map(({ label, Icon, active }) => (
+                    <div key={label} className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium"
+                      style={{ background: active ? '#C9A84C15' : 'transparent', color: active ? '#C9A84C' : '#6b7280', borderLeft: active ? '2px solid #C9A84C' : '2px solid transparent' }}>
+                      <Icon className="w-3 h-3 shrink-0" />
+                      {label}
+                    </div>
+                  ))}
                 </div>
-                <p className="text-text-secondary text-sm font-inter">Vista del panel<br/><span className="text-gold font-semibold">próximamente</span></p>
+                {/* Main panel */}
+                <div className="flex-1 p-3 overflow-hidden flex flex-col gap-2.5">
+                  <p className="text-[11px] font-extrabold font-sora" style={{ color: '#F5F5F5' }}>Gestión de Citas</p>
+                  {/* Appointment cards */}
+                  {[
+                    { name: 'Mateo A.', svc: 'Corte Fade', time: '09:30', st: 'confirmada', c: '#C9A84C' },
+                    { name: 'Carlos R.', svc: 'Barba', time: '10:00', st: 'confirmada', c: '#C9A84C' },
+                    { name: 'Pedro L.', svc: 'Corte + Barba', time: '11:30', st: 'completada', c: '#22C55E' },
+                    { name: 'Diego M.', svc: 'Fade completo', time: '12:00', st: 'confirmada', c: '#C9A84C' },
+                  ].map((a, i) => (
+                    <div key={i} className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg border"
+                      style={{ background: '#242424', borderColor: 'rgba(255,255,255,0.05)' }}>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                          style={{ background: '#C9A84C15', color: '#C9A84C' }}>{a.name.charAt(0)}</div>
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-bold truncate" style={{ color: '#F5F5F5' }}>{a.name}</p>
+                          <p className="text-[8px]" style={{ color: '#6b7280' }}>{a.svc} · {a.time}</p>
+                        </div>
+                      </div>
+                      <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ background: `${a.c}15`, color: a.c, border: `1px solid ${a.c}30` }}>{a.st}</span>
+                    </div>
+                  ))}
+                  {/* Mini stats */}
+                  <div className="grid grid-cols-3 gap-1.5 mt-auto">
+                    {[{ l: 'Hoy', v: '$45k' }, { l: 'Mes', v: '$890k' }, { l: 'Citas', v: '23' }].map(({ l, v }) => (
+                      <div key={l} className="rounded-lg p-2 border text-center" style={{ background: '#1e1e1e', borderColor: 'rgba(255,255,255,0.05)' }}>
+                        <p className="text-[8px]" style={{ color: '#6b7280' }}>{l}</p>
+                        <p className="text-[10px] font-bold font-sora" style={{ color: '#C9A84C' }}>{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -349,54 +413,160 @@ export default function Home() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
-          {[
-            {
-              num: '1',
-              title: 'Configura tu barbería',
-              desc: 'Ingresa tus servicios, precios, horarios y foto de tu local. En minutos tu barbería está lista para recibir reservas.',
-              img: '/assets/paso-1.png',
-              icon: <Settings className="w-8 h-8 text-gold/40" />,
-            },
-            {
-              num: '2',
-              title: 'Tus clientes reservan en segundos',
-              desc: 'Comparte tu link y tus clientes eligen servicio, fecha y hora desde su celular, sin registrarse ni descargar nada.',
-              img: '/assets/paso-2.png',
-              icon: <Smartphone className="w-8 h-8 text-gold/40" />,
-            },
-            {
-              num: '3',
-              title: 'Gestiona todo desde tu panel',
-              desc: 'Ve tus citas del día, tus ingresos del mes y las estadísticas de tu negocio en tiempo real desde tu panel.',
-              img: '/assets/paso-3.png',
-              icon: <BarChart2 className="w-8 h-8 text-gold/40" />,
-            },
-          ].map((step) => (
-            <div key={step.num} className="flex flex-col gap-5">
-              <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-surface-dark aspect-video flex items-center justify-center">
-                {/* Placeholder — reemplaza src por la captura real cuando la tengas */}
-                <img
-                  src={step.img}
-                  alt={step.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6">
-                  {step.icon}
-                  <span className="text-xs text-text-secondary font-inter">Captura próximamente</span>
-                </div>
-                <div className="absolute bottom-3 left-3 w-8 h-8 rounded-full bg-gold flex items-center justify-center font-sora font-bold text-background text-sm shadow-lg">
-                  {step.num}
+
+          {/* ── Paso 1: Configura ── */}
+          <div className="flex flex-col gap-5">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-xl" style={{ background: '#161616' }}>
+              {/* Header chrome */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/5" style={{ background: '#1e1e1e' }}>
+                <Settings className="w-3.5 h-3.5" style={{ color: '#C9A84C' }} />
+                <span className="text-[10px] font-bold font-sora" style={{ color: '#F5F5F5' }}>Catálogo de Servicios</span>
+                <div className="ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#C9A84C15', color: '#C9A84C', border: '1px solid #C9A84C30' }}>+ Agregar</div>
+              </div>
+              <div className="p-3 flex flex-col gap-2">
+                {[
+                  { name: 'Corte Degradado', dur: '45 min', price: '$12.000' },
+                  { name: 'Barba Completa', dur: '30 min', price: '$8.000' },
+                  { name: 'Corte + Barba', dur: '60 min', price: '$18.000' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl border" style={{ background: '#242424', borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <div>
+                      <p className="text-[10px] font-bold" style={{ color: '#F5F5F5' }}>{s.name}</p>
+                      <p className="text-[9px]" style={{ color: '#6b7280' }}>{s.dur}</p>
+                    </div>
+                    <span className="text-[10px] font-bold" style={{ color: '#C9A84C' }}>{s.price}</span>
+                  </div>
+                ))}
+                {/* Horario semanal */}
+                <div className="border-t border-white/5 pt-2.5 mt-0.5">
+                  <p className="text-[9px] mb-2" style={{ color: '#6b7280' }}>Disponibilidad semanal</p>
+                  <div className="flex gap-1">
+                    {[['L',true],['M',true],['X',true],['J',true],['V',true],['S',true],['D',false]].map(([d, on], i) => (
+                      <div key={i} className="flex-1 text-center py-1.5 rounded-lg text-[9px] font-bold"
+                        style={{ background: on ? '#C9A84C20' : '#2E2E2E', color: on ? '#C9A84C' : '#444', border: `1px solid ${on ? '#C9A84C30' : 'transparent'}` }}>{d}</div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <h3 className="font-sora text-lg font-bold mb-2">{step.title}</h3>
-                <p className="text-text-secondary text-sm font-inter leading-relaxed">{step.desc}</p>
-              </div>
+              <div className="absolute bottom-3 left-3 w-7 h-7 rounded-full flex items-center justify-center font-sora font-bold text-xs shadow-lg" style={{ background: '#C9A84C', color: '#0A0A0A' }}>1</div>
             </div>
-          ))}
+            <div>
+              <h3 className="font-sora text-lg font-bold mb-2">Configura tu barbería</h3>
+              <p className="text-text-secondary text-sm font-inter leading-relaxed">Ingresa tus servicios, precios, horarios y foto de tu local. En minutos tu barbería está lista para recibir reservas.</p>
+            </div>
+          </div>
+
+          {/* ── Paso 2: Cliente reserva ── */}
+          <div className="flex flex-col gap-5">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-xl flex justify-center py-4" style={{ background: '#161616' }}>
+              {/* Phone frame */}
+              <div className="w-[170px] rounded-[1.8rem] overflow-hidden shadow-2xl border-2" style={{ background: '#0D0D0D', borderColor: 'rgba(255,255,255,0.12)' }}>
+                {/* Status bar */}
+                <div className="flex items-center justify-between px-4 py-2" style={{ background: '#0D0D0D' }}>
+                  <span className="text-[7px]" style={{ color: 'rgba(255,255,255,0.4)' }}>09:41</span>
+                  <div className="flex gap-0.5">
+                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.3)' }} />)}
+                  </div>
+                </div>
+                {/* App */}
+                <div style={{ background: '#1A1A1A' }}>
+                  {/* Shop header */}
+                  <div className="flex items-center gap-1.5 px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(13,13,13,0.9)' }}>
+                    <div className="w-5 h-5 rounded-lg text-[8px] font-bold flex items-center justify-center shrink-0" style={{ background: '#C9A84C20', color: '#C9A84C', border: '1px solid #C9A84C30' }}>B</div>
+                    <span className="text-[8px] font-bold" style={{ color: '#F5F5F5' }}>Barbería Elite</span>
+                  </div>
+                  <div className="p-2 flex flex-col gap-1.5">
+                    {/* Selected service */}
+                    <div className="p-2 rounded-lg" style={{ background: '#C9A84C12', border: '1px solid #C9A84C35' }}>
+                      <p className="text-[7px] font-bold mb-0.5" style={{ color: '#C9A84C' }}>✓ Corte Degradado</p>
+                      <p className="text-[7px]" style={{ color: '#6b7280' }}>45 min · $12.000</p>
+                    </div>
+                    {/* Mini calendar */}
+                    <div className="p-2 rounded-lg" style={{ background: '#242424' }}>
+                      <p className="text-[7px] mb-1.5" style={{ color: '#6b7280' }}>Selecciona Fecha</p>
+                      <div className="grid grid-cols-7 gap-0.5">
+                        {[['L',false],['M',false],['X',true],['J',false],['V',false],['S',false],['D',false]].map(([d, sel], i) => (
+                          <div key={i} className="text-center py-1 rounded text-[6px] font-bold"
+                            style={{ background: sel ? '#C9A84C' : 'transparent', color: sel ? '#0A0A0A' : '#555' }}>{d}</div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Slots */}
+                    <div className="grid grid-cols-3 gap-1">
+                      {[['09:00',false],['09:30',true],['10:00',false],['10:30',false],['11:00',false],['11:30',false]].map(([t, sel], i) => (
+                        <div key={i} className="text-center py-1.5 rounded text-[7px] font-bold"
+                          style={{ background: sel ? '#C9A84C20' : '#2E2E2E', color: sel ? '#C9A84C' : '#555', border: `1px solid ${sel ? '#C9A84C35' : 'transparent'}` }}>{t}</div>
+                      ))}
+                    </div>
+                    {/* CTA */}
+                    <div className="py-2 rounded-lg text-center text-[8px] font-bold mt-0.5" style={{ background: '#C9A84C', color: '#0A0A0A' }}>
+                      Confirmar Reserva →
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute bottom-4 left-4 w-7 h-7 rounded-full flex items-center justify-center font-sora font-bold text-xs shadow-lg" style={{ background: '#C9A84C', color: '#0A0A0A' }}>2</div>
+            </div>
+            <div>
+              <h3 className="font-sora text-lg font-bold mb-2">Tus clientes reservan en segundos</h3>
+              <p className="text-text-secondary text-sm font-inter leading-relaxed">Comparte tu link y tus clientes eligen servicio, fecha y hora desde su celular, sin registrarse ni descargar nada.</p>
+            </div>
+          </div>
+
+          {/* ── Paso 3: Gestiona ── */}
+          <div className="flex flex-col gap-5">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-xl" style={{ background: '#161616' }}>
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/5" style={{ background: '#1e1e1e' }}>
+                <BarChart2 className="w-3.5 h-3.5" style={{ color: '#C9A84C' }} />
+                <span className="text-[10px] font-bold font-sora" style={{ color: '#F5F5F5' }}>Estadísticas de Ganancias</span>
+              </div>
+              <div className="p-3 flex flex-col gap-2.5">
+                {/* KPI cards */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[{ l: 'Hoy', v: '$45k' }, { l: 'Este mes', v: '$890k' }, { l: 'Total', v: '$3.2M' }].map(({ l, v }) => (
+                    <div key={l} className="p-2 rounded-xl border text-center" style={{ background: '#242424', borderColor: 'rgba(255,255,255,0.05)' }}>
+                      <p className="text-[8px]" style={{ color: '#6b7280' }}>{l}</p>
+                      <p className="text-[10px] font-bold font-sora" style={{ color: '#C9A84C' }}>{v}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Bar chart */}
+                <div className="p-3 rounded-xl border" style={{ background: '#242424', borderColor: 'rgba(255,255,255,0.05)' }}>
+                  <p className="text-[9px] mb-2" style={{ color: '#6b7280' }}>Últimos 7 días</p>
+                  <div className="flex items-end gap-1.5" style={{ height: 56 }}>
+                    {[35,60,48,80,55,95,42].map((h, i) => (
+                      <div key={i} className="flex-1 rounded-t-sm transition-all"
+                        style={{ height: `${h}%`, background: i === 5 ? '#C9A84C' : '#C9A84C35' }} />
+                    ))}
+                  </div>
+                  <div className="flex gap-1.5 mt-1.5">
+                    {['L','M','X','J','V','S','D'].map((d, i) => (
+                      <div key={i} className="flex-1 text-center text-[7px]" style={{ color: i === 5 ? '#C9A84C' : '#555' }}>{d}</div>
+                    ))}
+                  </div>
+                </div>
+                {/* Service breakdown */}
+                <div className="p-3 rounded-xl border" style={{ background: '#242424', borderColor: 'rgba(255,255,255,0.05)' }}>
+                  <p className="text-[9px] mb-2" style={{ color: '#6b7280' }}>Por servicio</p>
+                  {[{ name: 'Corte Fade', pct: 70 }, { name: 'Barba', pct: 45 }, { name: 'Combo', pct: 85 }].map(({ name, pct }) => (
+                    <div key={name} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[8px] w-16 shrink-0" style={{ color: '#A3A3A3' }}>{name}</span>
+                      <div className="flex-1 h-1.5 rounded-full" style={{ background: '#2E2E2E' }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: '#C9A84C' }} />
+                      </div>
+                      <span className="text-[8px] shrink-0" style={{ color: '#C9A84C' }}>{pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-3 w-7 h-7 rounded-full flex items-center justify-center font-sora font-bold text-xs shadow-lg" style={{ background: '#C9A84C', color: '#0A0A0A' }}>3</div>
+            </div>
+            <div>
+              <h3 className="font-sora text-lg font-bold mb-2">Gestiona todo desde tu panel</h3>
+              <p className="text-text-secondary text-sm font-inter leading-relaxed">Ve tus citas del día, tus ingresos del mes y las estadísticas de tu negocio en tiempo real desde tu panel.</p>
+            </div>
+          </div>
+
         </div>
       </section>
 
