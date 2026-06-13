@@ -18,11 +18,17 @@ export const viewport: Viewport = {
   themeColor: '#0D0D0D',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hgbarberflow.cl"),
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   title: "BarberFlow — Software de Reservas para Barberías en Chile | Desde $12/mes",
   description:
     "Automatiza las reservas de tu barbería en Chile. Sin comisiones, sin apps para tus clientes. Panel con estadísticas, gestión de horarios y página de reservas propia. Desde $12/mes.",
@@ -64,10 +70,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${sora.variable}`}>
-      <body className="antialiased">
+    <html lang="es" className={`${inter.variable} ${sora.variable} overflow-x-hidden`}>
+      <body className="antialiased overflow-x-hidden">
         {children}
       </body>
     </html>
+
   );
 }
