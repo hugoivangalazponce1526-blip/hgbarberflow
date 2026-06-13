@@ -38,6 +38,7 @@ import {
 
 interface Barbershop {
   id: string;
+  owner_id: string | null;
   name: string;
   slug: string;
   logo_url: string | null;
@@ -91,6 +92,7 @@ interface BlockedDate {
 
 interface Appointment {
   id: string;
+  barber_id: string | null;
   service_id: string;
   client_name: string;
   client_phone: string;
@@ -98,10 +100,8 @@ interface Appointment {
   start_time: string;
   status: 'confirmada' | 'completada' | 'cancelada';
   created_at: string;
-  services?: {
-    name: string;
-    price: number;
-  };
+  services?: { name: string; price: number; };
+  barber?: { full_name: string } | null;
 }
 
 const ALL_TIME_SLOTS = Array.from({ length: 30 }, (_, i) => {
@@ -252,23 +252,38 @@ export default function DashboardPage() {
     try {
       setTabLoading(true);
       if (activeTab === 'appointments') {
-        const { data, error } = await supabase
+        const isOwner = barbershop!.owner_id === profile!.id;
+        let apptQuery = supabase
           .from('appointments')
-          .select('*, services(name, price)')
+          .select('*, services(name, price), barber:profiles!barber_id(full_name)')
           .eq('barbershop_id', barbershop!.id)
           .order('appointment_date', { ascending: true })
           .order('start_time', { ascending: true });
 
+        // Equipo barbers (non-owners) see only their own appointments
+        if (barbershop!.plan_type === 'equipo' && !isOwner) {
+          apptQuery = apptQuery.eq('barber_id', profile!.id);
+        }
+
+        const { data, error } = await apptQuery;
         if (error) throw error;
         setAppointments(data || []);
 
       } else if (activeTab === 'stats') {
-        const { data, error } = await supabase
+        const isOwner = barbershop!.owner_id === profile!.id;
+        let statsQuery = supabase
           .from('appointments')
           .select('*, services(name, price)')
           .eq('barbershop_id', barbershop!.id)
           .neq('status', 'cancelada')
           .order('appointment_date', { ascending: true });
+
+        // Equipo barbers see only their own stats
+        if (barbershop!.plan_type === 'equipo' && !isOwner) {
+          statsQuery = statsQuery.eq('barber_id', profile!.id);
+        }
+
+        const { data, error } = await statsQuery;
         if (error) throw error;
         setAppointments(data || []);
 
@@ -1040,7 +1055,7 @@ export default function DashboardPage() {
                                 <Calendar className="w-5 h-5" style={{ color: activeColor }} />
                               </div>
                               <div className="flex flex-col gap-1.5">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="font-sora text-sm font-bold">{appointment.client_name}</h3>
                                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                     appointment.status === 'confirmada' && 'bg-gold/10 text-gold border border-gold/20'
@@ -1049,7 +1064,7 @@ export default function DashboardPage() {
                                   } ${
                                     appointment.status === 'cancelada' && 'bg-danger/10 text-danger border border-danger/20'
                                   }`}
-                                  style={{ 
+                                  style={{
                                     backgroundColor: appointment.status === 'confirmada' ? `${activeColor}15` : undefined,
                                     borderColor: appointment.status === 'confirmada' ? `${activeColor}30` : undefined,
                                     color: appointment.status === 'confirmada' ? activeColor : undefined,
@@ -1057,6 +1072,13 @@ export default function DashboardPage() {
                                   >
                                     {appointment.status}
                                   </span>
+                                  {/* Barber badge — only visible to the shop owner in equipo plan */}
+                                  {barbershop.plan_type === 'equipo' && barbershop.owner_id === profile!.id && appointment.barber && (
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10 bg-surface-light text-text-secondary">
+                                      <Users className="w-2.5 h-2.5 flex-shrink-0" />
+                                      {appointment.barber.full_name}
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-text-secondary">
                                   <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{appointment.start_time.substring(0, 5)} hrs</span>
