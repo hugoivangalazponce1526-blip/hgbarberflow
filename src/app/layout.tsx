@@ -24,11 +24,6 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hgbarberflow.cl"),
-  icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    shortcut: '/icon.svg',
-    apple: '/icon.svg',
-  },
   title: "BarberFlow — Software de Reservas para Barberías en Chile | Desde $12/mes",
   description:
     "Automatiza las reservas de tu barbería en Chile. Sin comisiones, sin apps para tus clientes. Panel con estadísticas, gestión de horarios y página de reservas propia. Desde $12/mes.",
