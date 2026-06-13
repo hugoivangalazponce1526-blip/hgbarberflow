@@ -164,8 +164,22 @@ export default function Home() {
       <header className="sticky top-0 z-50 glass border-b border-white/5 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center border border-gold/20">
-              <Scissors className="w-5 h-5 text-gold rotate-90" />
+            {/* Barber Pole icon */}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center border overflow-hidden" style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.25)' }}>
+              <svg viewBox="0 0 22 32" fill="none" className="w-5 h-8">
+                <rect x="1" y="1" width="20" height="30" rx="10" fill="#242424" stroke="rgba(201,168,76,0.3)" strokeWidth="0.5"/>
+                {/* Stripes gold */}
+                <path d="M1 9 L21 5 L21 9.5 L1 13.5 Z" fill="#C9A84C" opacity="0.95"/>
+                <path d="M1 18 L21 13.5 L21 18 L1 22.5 Z" fill="#C9A84C" opacity="0.95"/>
+                {/* Stripes white */}
+                <path d="M1 4.5 L21 1 L21 5 L1 8.5 Z" fill="white" opacity="0.18"/>
+                <path d="M1 13.5 L21 9.5 L21 13.5 L1 17.5 Z" fill="white" opacity="0.18"/>
+                <path d="M1 22.5 L21 18 L21 22.5 L1 27 Z" fill="white" opacity="0.18"/>
+                {/* Cap top */}
+                <ellipse cx="11" cy="1.5" rx="10" ry="2.5" fill="#C9A84C"/>
+                {/* Cap bottom */}
+                <ellipse cx="11" cy="30.5" rx="10" ry="2.5" fill="#C9A84C"/>
+              </svg>
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-sora text-xl font-bold tracking-tight bg-gradient-to-r from-text-primary via-text-primary to-gold bg-clip-text text-transparent">
@@ -805,18 +819,19 @@ export default function Home() {
                   <p className="text-text-secondary text-sm leading-relaxed mb-6 font-inter italic">&ldquo;{t.quote}&rdquo;</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full overflow-hidden border border-white/10 bg-surface-light flex-shrink-0">
-                    <img
-                      src={t.avatar}
-                      alt={t.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <div className="w-full h-full flex items-center justify-center font-bold font-sora text-sm text-gold -mt-11">
-                      {t.initials}
-                    </div>
+                  <div
+                    className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-bold font-sora text-sm border"
+                    style={{
+                      background: idx === 0
+                        ? 'linear-gradient(135deg,#C9A84C25,#2E2E2E)'
+                        : idx === 1
+                        ? 'linear-gradient(135deg,#3B82F625,#2E2E2E)'
+                        : 'linear-gradient(135deg,#22C55E25,#2E2E2E)',
+                      color: idx === 0 ? '#C9A84C' : idx === 1 ? '#60A5FA' : '#4ADE80',
+                      borderColor: idx === 0 ? 'rgba(201,168,76,0.3)' : idx === 1 ? 'rgba(96,165,250,0.3)' : 'rgba(74,222,128,0.3)',
+                    }}
+                  >
+                    {t.initials}
                   </div>
                   <div>
                     <h4 className="font-sora text-sm font-bold">{t.name}</h4>
@@ -867,8 +882,17 @@ export default function Home() {
         <div className="relative rounded-3xl overflow-hidden glass border border-white/5 py-12 px-6 sm:p-16 text-center shadow-2xl flex flex-col gap-6 items-center">
           <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-gold/10 blur-[50px] pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-gold/10 blur-[50px] pointer-events-none" />
-          <div className="w-12 h-12 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center mb-2">
-            <Scissors className="w-6 h-6 text-gold rotate-90" />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border overflow-hidden mb-2" style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.25)' }}>
+            <svg viewBox="0 0 22 32" fill="none" className="w-6 h-9">
+              <rect x="1" y="1" width="20" height="30" rx="10" fill="#242424" stroke="rgba(201,168,76,0.3)" strokeWidth="0.5"/>
+              <path d="M1 9 L21 5 L21 9.5 L1 13.5 Z" fill="#C9A84C" opacity="0.95"/>
+              <path d="M1 18 L21 13.5 L21 18 L1 22.5 Z" fill="#C9A84C" opacity="0.95"/>
+              <path d="M1 4.5 L21 1 L21 5 L1 8.5 Z" fill="white" opacity="0.15"/>
+              <path d="M1 13.5 L21 9.5 L21 13.5 L1 17.5 Z" fill="white" opacity="0.15"/>
+              <path d="M1 22.5 L21 18 L21 22.5 L1 27 Z" fill="white" opacity="0.15"/>
+              <ellipse cx="11" cy="1.5" rx="10" ry="2.5" fill="#C9A84C"/>
+              <ellipse cx="11" cy="30.5" rx="10" ry="2.5" fill="#C9A84C"/>
+            </svg>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-sora">
             ¿Listo para llevar tu barbería al siguiente nivel?
@@ -901,8 +925,15 @@ export default function Home() {
       <footer className="border-t border-white/5 bg-background relative z-10 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center border border-gold/20">
-              <Scissors className="w-4 h-4 text-gold rotate-90" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center border overflow-hidden" style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.25)' }}>
+              <svg viewBox="0 0 22 32" fill="none" className="w-4 h-7">
+                <rect x="1" y="1" width="20" height="30" rx="10" fill="#242424" stroke="rgba(201,168,76,0.3)" strokeWidth="0.5"/>
+                <path d="M1 9 L21 5 L21 9.5 L1 13.5 Z" fill="#C9A84C" opacity="0.95"/>
+                <path d="M1 18 L21 13.5 L21 18 L1 22.5 Z" fill="#C9A84C" opacity="0.95"/>
+                <path d="M1 13.5 L21 9.5 L21 13.5 L1 17.5 Z" fill="white" opacity="0.15"/>
+                <ellipse cx="11" cy="1.5" rx="10" ry="2.5" fill="#C9A84C"/>
+                <ellipse cx="11" cy="30.5" rx="10" ry="2.5" fill="#C9A84C"/>
+              </svg>
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-sora text-base font-bold tracking-tight text-text-primary">BarberFlow</span>

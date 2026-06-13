@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#1A1A1A"/>
+  <!-- Pole body -->
+  <rect x="11" y="2" width="10" height="28" rx="5" fill="#242424" stroke="#C9A84C" stroke-width="0.6" stroke-opacity="0.4"/>
+  <!-- Diagonal stripes gold -->
+  <path d="M11 8 L21 5 L21 9 L11 12 Z" fill="#C9A84C" opacity="0.95"/>
+  <path d="M11 16 L21 13 L21 17 L11 20 Z" fill="#C9A84C" opacity="0.95"/>
+  <!-- White stripes -->
+  <path d="M11 4 L21 1 L21 5 L11 8 Z" fill="#F5F5F5" opacity="0.5"/>
+  <path d="M11 12 L21 9 L21 13 L11 16 Z" fill="#F5F5F5" opacity="0.5"/>
+  <path d="M11 20 L21 17 L21 21 L11 24 Z" fill="#F5F5F5" opacity="0.5"/>
+  <!-- Cap top -->
+  <ellipse cx="16" cy="2.5" rx="5" ry="2" fill="#C9A84C"/>
+  <!-- Cap bottom -->
+  <ellipse cx="16" cy="29.5" rx="5" ry="2" fill="#C9A84C"/>
+</svg>
